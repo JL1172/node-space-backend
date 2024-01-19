@@ -10,45 +10,9 @@ datasource db {
 model Category {
   id                   Int           @id @default(autoincrement())
   category_type        CATEGORY_TYPE
-  category_description String
-  Post                 Post[]
+  category_description String?
+  Blog                 Blog[]
   SubCategory          SubCategory[]
-}
-
-model Feedback {
-  id                Int               @id @default(autoincrement())
-  feedback_content  String
-  feedback_category FEEDBACK_CATEGORY
-  feedback_email    String?
-  created_at        DateTime          @default(now())
-  updated_at        DateTime
-}
-
-model Post {
-  id               Int           @id @default(autoincrement())
-  post_caption     String
-  post_description String
-  user_id          Int
-  category_id      Int
-  created_at       DateTime      @default(now())
-  updated_at       DateTime
-  Category         Category      @relation(fields: [category_id], references: [id])
-  User             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  PostMedia        PostMedia[]
-  SubCategory      SubCategory[]
-
-  @@unique([id, user_id])
-}
-
-model PostMedia {
-  id         Int      @id @default(autoincrement())
-  post_img   String
-  post_id    Int
-  created_at DateTime @default(now())
-  updated_at DateTime
-  Post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
-
-  @@unique([post_id, id])
 }
 
 model Social {
@@ -65,7 +29,7 @@ model SubCategory {
   sub_category_name String   @unique
   category_id       Int
   Category          Category @relation(fields: [category_id], references: [id])
-  Post              Post[]
+  Blog              Blog[]
 }
 
 model Token_Blacklist {
@@ -84,10 +48,41 @@ model User {
   role       ROLE     @default(USER)
   created_at DateTime @default(now())
   updated_at DateTime
-  Post       Post[]
+  Blog       Blog[]
   Social     Social[]
 
   @@unique([first_name, last_name])
+}
+
+model Blog {
+  id               Int           @id @default(autoincrement())
+  blog_title       String
+  blog_intro       String
+  blog_body        String
+  blog_outro       String
+  blog_summary     String
+  user_id          Int
+  blog_author_name String?
+  category_id      Int
+  created_at       DateTime      @default(now())
+  updated_at       DateTime
+  Category         Category      @relation(fields: [category_id], references: [id])
+  User             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  BlogMedia        BlogMedia[]
+  SubCategory      SubCategory[]
+
+  @@unique([id, user_id])
+}
+
+model BlogMedia {
+  id         Int      @id @default(autoincrement())
+  blog_img   String
+  blog_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime
+  Blog       Blog     @relation(fields: [blog_id], references: [id], onDelete: Cascade)
+
+  @@unique([blog_id, id])
 }
 
 enum CATEGORY_TYPE {
@@ -95,14 +90,6 @@ enum CATEGORY_TYPE {
   FRONTEND
   DATABASE
   NODESPACE
-  DEVELOPER
-}
-
-enum FEEDBACK_CATEGORY {
-  OTHER
-  CREATE
-  BUGREPORT
-  NEWFEATURE
 }
 
 enum ROLE {
