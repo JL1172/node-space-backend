@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +5,114 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Category {
+  id                   Int           @id @default(autoincrement())
+  category_type        CATEGORY_TYPE
+  category_description String
+  Post                 Post[]
+  SubCategory          SubCategory[]
+}
+
+model Feedback {
+  id                Int               @id @default(autoincrement())
+  feedback_content  String
+  feedback_category FEEDBACK_CATEGORY
+  feedback_email    String?
+  created_at        DateTime          @default(now())
+  updated_at        DateTime
+}
+
+model Post {
+  id               Int           @id @default(autoincrement())
+  post_caption     String
+  post_description String
+  user_id          Int
+  category_id      Int
+  created_at       DateTime      @default(now())
+  updated_at       DateTime
+  Category         Category      @relation(fields: [category_id], references: [id])
+  User             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  PostMedia        PostMedia[]
+  SubCategory      SubCategory[]
+
+  @@unique([id, user_id])
+}
+
+model PostMedia {
+  id         Int      @id @default(autoincrement())
+  post_img   String
+  post_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime
+  Post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@unique([post_id, id])
+}
+
+model Social {
+  id          Int    @id @default(autoincrement())
+  social_type SOCIAL
+  user_id     Int
+  User        User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, social_type])
+}
+
+model SubCategory {
+  id                Int      @id @default(autoincrement())
+  sub_category_name String   @unique
+  category_id       Int
+  Category          Category @relation(fields: [category_id], references: [id])
+  Post              Post[]
+}
+
+model Token_Blacklist {
+  id              Int      @id @default(autoincrement())
+  jwt             String   @unique
+  expiration_time DateTime
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  email      String   @unique
+  username   String   @unique
+  password   String
+  role       ROLE     @default(USER)
+  created_at DateTime @default(now())
+  updated_at DateTime
+  Post       Post[]
+  Social     Social[]
+
+  @@unique([first_name, last_name])
+}
+
+enum CATEGORY_TYPE {
+  BACKEND
+  FRONTEND
+  DATABASE
+  NODESPACE
+  DEVELOPER
+}
+
+enum FEEDBACK_CATEGORY {
+  OTHER
+  CREATE
+  BUGREPORT
+  NEWFEATURE
+}
+
+enum ROLE {
+  ADMIN
+  USER
+}
+
+enum SOCIAL {
+  LINKEDIN
+  GITHUB
+  INSTAGRAM
+  PORTFOLIO
 }
