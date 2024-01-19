@@ -7,7 +7,6 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
-import { ieNoOpen } from 'helmet';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import * as validator from 'validator';
