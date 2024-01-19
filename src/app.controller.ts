@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('success')
+  sanitySuccess(): string {
+    return 'Sanity Success Message';
+  }
+  @Get('error')
+  sanityError(): HttpException {
+    throw new HttpException('Sanity Error', HttpStatus.BAD_REQUEST);
   }
 }
