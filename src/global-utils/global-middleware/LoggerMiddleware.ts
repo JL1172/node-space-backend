@@ -9,15 +9,14 @@ export class ActivityLogger implements NestMiddleware {
     this.logger = new Logger(ActivityLogger.name);
   }
   use(req: Request, res: Response, next: NextFunction) {
-    const path: string = req.path;
-    const ipAddress: string =
-      process.env.STATUS === 'dev'
-        ? os.networkInterfaces().wlp48s0[0]?.address
-        : 'N/A';
-    const timeStamp: string = new Date().toISOString();
-    const method: string = req.method;
     this.logger.log(
-      `[Method: ${method}] [Path: ${path}] [ip: ${ipAddress}] [Time Stamp: ${timeStamp}]`,
+      `(Method: ${req.method}) (Path: ${
+        req.baseUrl
+      }) (Timestamp: ${new Date().toISOString()}) (IP: ${
+        process.env.STATUS && process.env.STATUS === 'dev'
+          ? os.networkInterfaces().wlp48s0[0]?.address
+          : 'N/A'
+      })`,
     );
     next();
   }

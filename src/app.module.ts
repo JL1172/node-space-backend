@@ -4,16 +4,20 @@ import { RateLimitMiddleware } from './global-utils/global-middleware/RateLimite
 import { ActivityLogger } from './global-utils/global-middleware/LoggerMiddleware';
 import { PrismaProvider } from './global-utils/global-services/providers/PrismaProvider';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronJobOne } from './global-utils/global-services/cron/cron-job-one-jwt';
 import { AuthModule } from './auth-module/auth-module';
+import * as cors from 'cors';
+import * as hpp from 'hpp';
+import { CronModule } from './cron-module/cron-module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), AuthModule],
+  imports: [ScheduleModule.forRoot(), AuthModule, CronModule],
   controllers: [AppController],
-  providers: [PrismaProvider, CronJobOne],
+  providers: [PrismaProvider],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RateLimitMiddleware, ActivityLogger).forRoutes('*');
+    consumer
+      .apply(ActivityLogger, RateLimitMiddleware, cors(), hpp())
+      .forRoutes('*');
   }
 }

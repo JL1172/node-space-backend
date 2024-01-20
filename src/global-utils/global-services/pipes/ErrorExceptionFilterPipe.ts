@@ -13,18 +13,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
   constructor() {
     this.logger = new Logger(HttpExceptionFilter.name);
   }
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const status = exception.status;
+    const status = exception.getStatus();
     const message = exception.getResponse();
     const previewMessage = exception.message;
     const { path, method } = request;
-    const timestamp = new Date();
     this.logger.error(
-      JSON.stringify({ path, method, status, previewMessage, timestamp }),
+      JSON.stringify({
+        path,
+        method,
+        status,
+        previewMessage,
+        timestamp: new Date().toISOString(),
+      }),
     );
-    response.status(status).json({ path, method, status, message, timestamp });
+    response.status(status).json({
+      path,
+      method,
+      status,
+      message,
+      timestamp: new Date().toISOString(),
+    });
   }
 }
