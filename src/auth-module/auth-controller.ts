@@ -3,10 +3,14 @@ import { Response } from 'express';
 import { RegisterBody } from './dtos/register-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import { User } from '@prisma/client';
+import { UserJwtStorage } from './services/providers/login-service';
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(
+    private readonly prisma: PrismaProvider,
+    private readonly userService: UserJwtStorage,
+  ) {}
   @Post('/register')
   async register(
     @Res({ passthrough: true }) res: Response,
@@ -16,25 +20,16 @@ export class AuthController {
     res.status(201).json({ message: 'Successfully Created User Account' });
   }
   @Post('/login')
-  async login(
-    @Res({ passthrough: true }) res: Response,
-    @Body() body: any,
-  ): Promise<Record<string, any>> {
-    return { ...body };
+  async login(@Res({ passthrough: true }) res: Response): Promise<void> {
+    const token: string = await this.userService.buildJwt();
+    res.status(200).json({ token: token });
   }
   @Post('/logout')
-  async logout(
-    @Res({ passthrough: true }) res: Response,
-    @Body() body: any,
-  ): Promise<Record<string, any>> {
-    return { ...body };
+  async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
+    res.status(200);
   }
   @Get('find')
   async findAll(): Promise<User[]> {
     return await this.prisma.findAll();
-  }
-  @Get('remove')
-  async deleteAll(): Promise<void> {
-    return await this.prisma.deleteAll();
   }
 }

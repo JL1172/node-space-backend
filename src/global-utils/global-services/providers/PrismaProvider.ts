@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
+import { PayloadBody } from 'src/auth-module/dtos/logout-dto';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 
 @Injectable()
@@ -10,10 +11,6 @@ export class PrismaProvider {
   }
   async findAll(): Promise<User[]> {
     return await this.prisma.user.findMany();
-  }
-  async deleteAll(): Promise<void> {
-    await this.prisma.user.deleteMany();
-    await this.prisma.$executeRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
   }
   async cronJobJwtFnOne(): Promise<number> {
     return await this.prisma.token_Blacklist.count();
@@ -39,5 +36,14 @@ export class PrismaProvider {
   }
   async createUser(userData: RegisterBody): Promise<void> {
     await this.prisma.user.create({ data: userData });
+  }
+  async findUserForLogin(username: string): Promise<User | null> {
+    const result: User | null = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+    return result;
+  }
+  async blackListJwt(payload: PayloadBody) {
+    await this.prisma.token_Blacklist.create({ data: payload });
   }
 }
