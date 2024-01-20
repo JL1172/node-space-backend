@@ -55,6 +55,26 @@ export class LogoutSanitationMiddleware implements NestMiddleware {
 }
 
 @Injectable()
+export class VerifyJwtUnique implements NestMiddleware {
+  constructor(private readonly prisma: PrismaProvider) {}
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.prisma.findJwt(req.headers.authorization);
+      if (result) {
+        throw new HttpException('Token Not Unique', HttpStatus.BAD_REQUEST);
+      } else {
+        next();
+      }
+    } catch (err) {
+      throw new HttpException(
+        `Error Verifying Token's Uniqueness: ${err}`,
+        err.status,
+      );
+    }
+  }
+}
+
+@Injectable()
 export class VerifyJwtValidMiddleware implements NestMiddleware {
   constructor(
     private readonly jwt: JwtProvider,

@@ -23,6 +23,7 @@ import {
   BlacklistJwtMiddleware,
   LogoutSanitationMiddleware,
   LogoutValidationMiddleware,
+  VerifyJwtUnique,
   VerifyJwtValidMiddleware,
 } from './services/middleware/logout-mw';
 import { JwtStorage } from './services/providers/logout-service';
@@ -61,6 +62,7 @@ export class AuthModule implements NestModule {
       .apply(
         LogoutValidationMiddleware,
         LogoutSanitationMiddleware,
+        VerifyJwtUnique,
         VerifyJwtValidMiddleware,
         BlacklistJwtMiddleware,
       )

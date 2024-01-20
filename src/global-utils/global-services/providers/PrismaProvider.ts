@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
-import { PayloadBody } from 'src/auth-module/dtos/logout-dto';
+import { LogoutBody, PayloadBody } from 'src/auth-module/dtos/logout-dto';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 
 @Injectable()
@@ -42,6 +42,11 @@ export class PrismaProvider {
       where: { username: username },
     });
     return result;
+  }
+  async findJwt(token: LogoutBody['token']) {
+    return await this.prisma.token_Blacklist.findUnique({
+      where: { jwt: token },
+    });
   }
   async blackListJwt(payload: PayloadBody) {
     await this.prisma.token_Blacklist.create({ data: payload });
