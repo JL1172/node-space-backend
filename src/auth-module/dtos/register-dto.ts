@@ -1,4 +1,3 @@
-import { ROLE } from '@prisma/client';
 import {
   IsAlpha,
   IsEmail,
@@ -11,6 +10,9 @@ import {
   ValidationOptions,
 } from 'class-validator';
 
+enum ROLE {
+  USER = 'USER',
+}
 export class RegisterBody {
   @IsString({ message: 'First Name Must Be In Proper Format.' })
   @MinLength(2, { message: 'First Name Must Be Longer Than 2 Characters.' })
@@ -39,6 +41,6 @@ export class RegisterBody {
       'Password Requirements: Uppercase Letter, Lowercase Letter, Special Character, Number.',
   } as ValidationOptions)
   password: string;
-  @IsEnum(ROLE, { message: 'Can Only Be One Of Two Roles.' })
+  @IsEnum(ROLE, { message: 'Can Only Be User.' })
   role: ROLE;
 }

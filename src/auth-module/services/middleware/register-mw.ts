@@ -10,6 +10,7 @@ import { NextFunction, Request, Response } from 'express';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import * as validator from 'validator';
+import { PasswordService } from '../providers/register-service';
 
 @Injectable()
 export class RegisterValidationMiddleware implements NestMiddleware {
@@ -66,9 +67,43 @@ export class VerifyUserUnique implements NestMiddleware {
   constructor(private readonly prisma: PrismaProvider) {}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
+      const [firstResult, secondResult] = await this.prisma.findUser(req.body);
+      if (!firstResult || !secondResult) {
+        throw new HttpException(
+          `${
+            !firstResult && secondResult
+              ? 'Username'
+              : firstResult && !secondResult
+                ? 'Email'
+                : 'Username and Email'
+          } Not Unique.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      } else {
+        next();
+      }
     } catch (err) {
       throw new HttpException(
-        'Error Verifying Uniqueness Of User',
+        `Error Verifying Uniqueness Of User: ${err}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+}
+
+@Injectable()
+export class HashPasswordMiddleware implements NestMiddleware {
+  constructor(private readonly passwordService: PasswordService) {}
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      const hashedPassword: string = await this.passwordService.hashPassword(
+        req.body.password,
+      );
+      req.body.password = hashedPassword;
+      next();
+    } catch (err) {
+      throw new HttpException(
+        `Error Processing Password: ${err}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
