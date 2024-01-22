@@ -17,10 +17,7 @@ export class AuthController {
     @Body() body: RegisterBody,
   ): Promise<void> {
     await this.prisma.createUser(body);
-    res
-      .status(201)
-      .json({ message: 'Successfully Created User Account' })
-      .redirect('/creator/login');
+    res.status(201).json({ message: 'Successfully Created User Account' });
   }
   @Post('/login')
   async login(@Res({ passthrough: true }) res: Response): Promise<void> {
