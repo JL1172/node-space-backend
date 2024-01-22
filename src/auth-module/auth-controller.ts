@@ -17,12 +17,15 @@ export class AuthController {
     @Body() body: RegisterBody,
   ): Promise<void> {
     await this.prisma.createUser(body);
-    res.status(201).json({ message: 'Successfully Created User Account' });
+    res
+      .status(201)
+      .json({ message: 'Successfully Created User Account' })
+      .redirect('/creator/login');
   }
   @Post('/login')
   async login(@Res({ passthrough: true }) res: Response): Promise<void> {
     const token: string = await this.userService.buildJwt();
-    res.status(200).json({ token: token });
+    res.status(200).json({ token: token }).redirect('/creator/blog-form');
   }
   @Post('/logout')
   async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
