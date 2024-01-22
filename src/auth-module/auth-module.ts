@@ -27,6 +27,7 @@ import {
   VerifyJwtValidMiddleware,
 } from './services/middleware/logout-mw';
 import { JwtStorage } from './services/providers/logout-service';
+import { RateLimitMiddleware } from 'src/global-utils/global-middleware/RateLimiterMiddleware';
 
 @Module({
   imports: [],
@@ -42,6 +43,7 @@ import { JwtStorage } from './services/providers/logout-service';
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RateLimitMiddleware).forRoutes('*');
     consumer
       .apply(
         RegisterValidationMiddleware,

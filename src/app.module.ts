@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { RateLimitMiddleware } from './global-utils/global-middleware/RateLimiterMiddleware';
 import { ActivityLogger } from './global-utils/global-middleware/LoggerMiddleware';
 import { PrismaProvider } from './global-utils/global-services/providers/PrismaProvider';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -16,8 +15,6 @@ import { CronModule } from './cron-module/cron-module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ActivityLogger, RateLimitMiddleware, cors(), hpp())
-      .forRoutes('*');
+    consumer.apply(ActivityLogger, cors(), hpp()).forRoutes('*');
   }
 }
