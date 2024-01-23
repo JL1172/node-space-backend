@@ -9,9 +9,6 @@ export class PrismaProvider {
   constructor() {
     this.prisma = new PrismaClient();
   }
-  async findAll(): Promise<User[]> {
-    return await this.prisma.user.findMany();
-  }
   async cronJobJwtFnOne(): Promise<number> {
     return await this.prisma.token_Blacklist.count();
   }

@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { RegisterBody } from './dtos/register-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
-import { User } from '@prisma/client';
 import { UserJwtStorage } from './services/providers/login-service';
 
 @Controller('api/auth')
@@ -27,9 +26,5 @@ export class AuthController {
   @Post('/logout')
   async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
     res.status(200);
-  }
-  @Get('find')
-  async findAll(): Promise<User[]> {
-    return await this.prisma.findAll();
   }
 }
