@@ -43,7 +43,9 @@ import { RateLimitMiddleware } from 'src/global-utils/global-middleware/RateLimi
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RateLimitMiddleware).forRoutes('*');
+    consumer
+      .apply(RateLimitMiddleware)
+      .forRoutes('/api/auth/register', '/api/auth/login', '/api/auth/logout');
     consumer
       .apply(
         RegisterValidationMiddleware,

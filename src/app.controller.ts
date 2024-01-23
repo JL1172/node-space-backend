@@ -8,6 +8,10 @@ export class AppController {
   sanitySuccess(): string {
     return 'Sanity Success Message';
   }
+  @Get('pinging')
+  sanitySuccessPing(): string {
+    return 'Pinging...';
+  }
   @Get('error')
   sanityError(): HttpException {
     throw new HttpException('Sanity Error', HttpStatus.BAD_REQUEST);
