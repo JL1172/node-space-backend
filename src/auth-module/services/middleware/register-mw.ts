@@ -67,7 +67,10 @@ export class VerifyUserUnique implements NestMiddleware {
   constructor(private readonly prisma: PrismaProvider) {}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      const [firstResult, secondResult] = await this.prisma.findUser(req.body);
+      const [firstResult, secondResult] = await this.prisma.findUser(
+        req.body.username,
+        req.body.email,
+      );
       if (!firstResult || !secondResult) {
         throw new HttpException(
           `${

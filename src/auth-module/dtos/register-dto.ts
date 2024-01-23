@@ -44,3 +44,16 @@ export class RegisterBody {
   @IsEnum(ROLE, { message: 'Can Only Be User.' })
   role: ROLE;
 }
+
+export class RegisterPartition {
+  @IsEmail({}, { message: 'Must Be A Valid Email.' })
+  @IsNotEmpty({ message: 'Email Required.' })
+  email: string;
+  @IsString({ message: 'Username Must Be In Proper Format.' })
+  @MinLength(6, { message: 'Username Must Be Longer Than 6 Characters.' })
+  @IsNotEmpty({ message: 'Username Required.' })
+  @Matches(/^(?=.*[a-zA-Z])(?=.*\d).+/, {
+    message: 'Username Must Contain Number and Letters.',
+  })
+  username: string;
+}

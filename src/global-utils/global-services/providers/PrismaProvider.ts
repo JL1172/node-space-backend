@@ -20,12 +20,12 @@ export class PrismaProvider {
     });
     return await this.prisma.token_Blacklist.count();
   }
-  async findUser(userData: RegisterBody): Promise<any> {
+  async findUser(username: string, email: string): Promise<any> {
     const username_found: User | null = await this.prisma.user.findUnique({
-      where: { username: userData.username },
+      where: { username: username },
     });
     const email_found: User | null = await this.prisma.user.findUnique({
-      where: { email: userData.email },
+      where: { email: email },
     });
     const isUsernameUnique: boolean = username_found ? false : true;
     const isEmailUnique: boolean = email_found ? false : true;
