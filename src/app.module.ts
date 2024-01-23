@@ -4,7 +4,6 @@ import { PrismaProvider } from './global-utils/global-services/providers/PrismaP
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth-module/auth-module';
 import { CronModule } from './cron-module/cron-module';
-import { ApiKeyVerification } from './global-utils/global-middleware/ApiKeyMiddleware';
 import { ActivityLogger } from './global-utils/global-middleware/LoggerMiddleware';
 
 @Module({
@@ -14,6 +13,6 @@ import { ActivityLogger } from './global-utils/global-middleware/LoggerMiddlewar
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ApiKeyVerification, ActivityLogger).forRoutes('*');
+    consumer.apply(ActivityLogger).forRoutes('*');
   }
 }

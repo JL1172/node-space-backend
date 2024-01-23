@@ -28,6 +28,7 @@ import {
 } from './services/middleware/logout-mw';
 import { JwtStorage } from './services/providers/logout-service';
 import { RateLimitMiddleware } from 'src/global-utils/global-middleware/RateLimiterMiddleware';
+import { ApiKeyVerification } from 'src/global-utils/global-middleware/ApiKeyMiddleware';
 
 @Module({
   imports: [],
@@ -44,7 +45,7 @@ import { RateLimitMiddleware } from 'src/global-utils/global-middleware/RateLimi
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(RateLimitMiddleware)
+      .apply(ApiKeyVerification, RateLimitMiddleware)
       .forRoutes('/api/auth/register', '/api/auth/login', '/api/auth/logout');
     consumer
       .apply(
