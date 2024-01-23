@@ -10,7 +10,6 @@ import { NextFunction, Request, Response } from 'express';
 export class ApiKeyVerification implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const api_key = req.headers['api-key'];
-    console.log(api_key);
     if (!api_key) {
       throw new HttpException('API Key Required', HttpStatus.UNAUTHORIZED);
     } else {
