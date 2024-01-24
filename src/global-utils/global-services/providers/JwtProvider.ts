@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ROLE } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
-import { LogoutBody } from 'src/auth-module/dtos/logout-dto';
+import { LogoutBody } from 'src/authentication-module/dtos/logout-dto';
 @Injectable()
 export class JwtProvider {
   private readonly jwt = jwt;
