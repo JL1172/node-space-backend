@@ -31,7 +31,10 @@ export class RestrictedRouteValidation implements NestMiddleware {
       next();
     } catch (err: any | unknown) {
       const error_payload: string[] = Object.values(err[0].constraints);
-      throw new HttpException(error_payload, HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        { authorized: false, error: error_payload },
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 }
@@ -73,7 +76,7 @@ export class VerifyJwtValidationMiddleware implements NestMiddleware {
       });
       next();
     } catch (err: unknown | any) {
-      throw new HttpException(err, err.status);
+      throw new HttpException({ authorized: false, error: err }, err.status);
     }
   }
 }
