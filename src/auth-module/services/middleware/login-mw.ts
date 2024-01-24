@@ -7,7 +7,7 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
-import { LoginType } from 'src/authentication-module/dtos/login-dto';
+import { LoginType } from 'src/auth-module/dtos/login-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import * as validator from 'validator';
 import { PasswordComparison, UserJwtStorage } from '../providers/login-service';

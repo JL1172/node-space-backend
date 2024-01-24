@@ -7,12 +7,9 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
-import {
-  LogoutBody,
-  PayloadBody,
-} from 'src/authentication-module/dtos/logout-dto';
+import { LogoutBody, PayloadBody } from 'src/auth-module/dtos/logout-dto';
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
-import validator from 'validator';
+import * as validator from 'validator';
 import { JwtStorage } from '../providers/logout-service';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 

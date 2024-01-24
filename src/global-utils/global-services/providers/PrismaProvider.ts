@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
-import {
-  LogoutBody,
-  PayloadBody,
-} from 'src/authentication-module/dtos/logout-dto';
-import { RegisterBody } from 'src/authentication-module/dtos/register-dto';
+import { LogoutBody, PayloadBody } from 'src/auth-module/dtos/logout-dto';
+import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 
 @Injectable()
 export class PrismaProvider {

@@ -1,14 +1,17 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { RegisterBody } from './dtos/register-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import { UserJwtStorage } from './services/providers/login-service';
+import { RestrictedPayloadStorageType } from './dtos/restricted-route.dto';
+import { RestrictedPayloadService } from './services/providers/restricted-route-service';
 
 @Controller('api/auth')
 export class AuthController {
   constructor(
     private readonly prisma: PrismaProvider,
     private readonly userService: UserJwtStorage,
+    private readonly payloadStorage: RestrictedPayloadService,
   ) {}
   @Post('/register')
   async register(
@@ -26,5 +29,11 @@ export class AuthController {
   @Post('/logout')
   async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
     res.status(200);
+  }
+  @Get('/restricted-check')
+  verifyJwt(@Res({ passthrough: true }) res: Response): void {
+    const payload: RestrictedPayloadStorageType =
+      this.payloadStorage.readPayload();
+    res.status(200).json({ authorized: true, payload });
   }
 }

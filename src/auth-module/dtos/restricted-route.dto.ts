@@ -5,3 +5,8 @@ export class HeadersPayloadType {
   @IsJWT({ message: 'Improper Format For Token' })
   token: string;
 }
+
+export class RestrictedPayloadStorageType {
+  username: string;
+  email: string;
+}

@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AuthController } from './authentication-controller';
+import { AuthController } from './auth-controller';
 import {
   HashPasswordMiddleware,
   RegisterSanitationMiddleware,
@@ -29,6 +29,15 @@ import {
 import { JwtStorage } from './services/providers/logout-service';
 import { RateLimitMiddleware } from 'src/global-utils/global-middleware/RateLimiterMiddleware';
 import { ApiKeyVerification } from 'src/global-utils/global-middleware/ApiKeyMiddleware';
+import {
+  RestrictedRouteSanitation,
+  RestrictedRouteValidation,
+  VerifyJwtValidationMiddleware,
+} from './services/middleware/restricted-route-mw';
+import {
+  RestrictedJwtService,
+  RestrictedPayloadService,
+} from './services/providers/restricted-route-service';
 
 @Module({
   imports: [],
@@ -40,13 +49,20 @@ import { ApiKeyVerification } from 'src/global-utils/global-middleware/ApiKeyMid
     UserJwtStorage,
     JwtProvider,
     JwtStorage,
+    RestrictedJwtService,
+    RestrictedPayloadService,
   ],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ApiKeyVerification, RateLimitMiddleware)
-      .forRoutes('/api/auth/register', '/api/auth/login', '/api/auth/logout');
+      .forRoutes(
+        '/api/auth/register',
+        '/api/auth/login',
+        '/api/auth/logout',
+        '/api/auth/restricted-check',
+      );
     consumer
       .apply(
         RegisterValidationMiddleware,
@@ -72,5 +88,12 @@ export class AuthModule implements NestModule {
         BlacklistJwtMiddleware,
       )
       .forRoutes('/api/auth/logout');
+    consumer
+      .apply(
+        RestrictedRouteValidation,
+        RestrictedRouteSanitation,
+        VerifyJwtValidationMiddleware,
+      )
+      .forRoutes('/api/auth/restricted-check');
   }
 }
