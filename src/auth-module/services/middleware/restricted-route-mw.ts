@@ -46,15 +46,18 @@ export class RestrictedRouteSanitation implements NestMiddleware {
     this.validator = validator;
   }
   use(req: Request, res: Response, next: NextFunction) {
-    let body: HeadersPayloadType['token'] = req.headers.authorization;
-    body = this.validator.default.escape(body);
-    body = this.validator.default.trim(body);
-    body = this.validator.default.blacklist(
-      body,
+    req.headers.authorization = this.validator.default.escape(
+      req.headers.authorization,
+    );
+    req.headers.authorization = this.validator.default.trim(
+      req.headers.authorization,
+    );
+    req.headers.authorization = this.validator.default.blacklist(
+      req.headers.authorization,
       /[\x00-\x1F\s;'"\\<>]/.source,
     );
-    req.headers.authorization = body;
-    this.jwtStorage.secureStore(body);
+    const token = req.headers.authorization;
+    this.jwtStorage.secureStore(token);
     next();
   }
 }

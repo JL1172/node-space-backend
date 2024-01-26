@@ -47,8 +47,9 @@ export class JwtProvider {
             `Invalid Token: ${err}`,
             HttpStatus.UNAUTHORIZED,
           );
+        } else {
+          return_token = decodedToken;
         }
-        return_token = decodedToken;
       });
       return return_token;
     } catch (err) {
