@@ -26,7 +26,7 @@ export class AuthController {
     const token: string = await this.userService.buildJwt();
     res.status(200).json({ token: token });
   }
-  @Post('/logout')
+  @Get('/logout')
   async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
     res.status(200);
   }
