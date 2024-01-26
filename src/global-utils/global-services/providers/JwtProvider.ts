@@ -2,10 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ROLE } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import { LogoutBody } from 'src/auth-module/dtos/logout-dto';
+import { DecodedTokenStorageService } from './DecodedTokenStorage';
 @Injectable()
 export class JwtProvider {
   private readonly jwt = jwt;
-  constructor() {
+  constructor(
+    private readonly decodedTokenStorage: DecodedTokenStorageService,
+  ) {
     this.jwt = jwt;
   }
   async jwtBuilder(userData: {
@@ -40,7 +43,6 @@ export class JwtProvider {
   }
   async jwtVerification(token: LogoutBody['token']) {
     try {
-      let return_token;
       this.jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
         if (err) {
           throw new HttpException(
@@ -48,10 +50,9 @@ export class JwtProvider {
             HttpStatus.UNAUTHORIZED,
           );
         } else {
-          return_token = decodedToken;
+          this.decodedTokenStorage.storeDecodedToken(decodedToken);
         }
       });
-      return return_token;
     } catch (err) {
       throw new HttpException(
         `Error Processing Token: ${err}`,

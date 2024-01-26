@@ -15,6 +15,7 @@ import {
 } from '../providers/restricted-route-service';
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
 import { HeadersPayloadType } from 'src/auth-module/dtos/restricted-route.dto';
+import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
 
 @Injectable()
 export class RestrictedRouteValidation implements NestMiddleware {
@@ -45,20 +46,24 @@ export class RestrictedRouteSanitation implements NestMiddleware {
   constructor(private readonly jwtStorage: RestrictedJwtService) {
     this.validator = validator;
   }
-  use(req: Request, res: Response, next: NextFunction) {
-    req.headers.authorization = this.validator.default.escape(
-      req.headers.authorization,
-    );
-    req.headers.authorization = this.validator.default.trim(
-      req.headers.authorization,
-    );
-    req.headers.authorization = this.validator.default.blacklist(
-      req.headers.authorization,
-      /[\x00-\x1F\s;'"\\<>]/.source,
-    );
-    const token = req.headers.authorization;
-    this.jwtStorage.secureStore(token);
-    next();
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      req.headers.authorization = this.validator.default.escape(
+        req.headers.authorization,
+      );
+      req.headers.authorization = this.validator.default.trim(
+        req.headers.authorization,
+      );
+      req.headers.authorization = this.validator.default.blacklist(
+        req.headers.authorization,
+        /[\x00-\x1F\s;'"\\<>]/.source,
+      );
+      const token = req.headers.authorization;
+      this.jwtStorage.secureStore(token);
+      next();
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
 
@@ -68,11 +73,13 @@ export class VerifyJwtValidationMiddleware implements NestMiddleware {
     private readonly jwtStorage: RestrictedJwtService,
     private readonly jwtVerification: JwtProvider,
     private readonly payloadStorage: RestrictedPayloadService,
+    private readonly decodedTokenStorage: DecodedTokenStorageService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
       const { token }: HeadersPayloadType = this.jwtStorage.secureRead();
-      const result = await this.jwtVerification.jwtVerification(token);
+      await this.jwtVerification.jwtVerification(token);
+      const result = await this.decodedTokenStorage.readDecodedToken();
       this.payloadStorage.storePayload({
         username: result.username,
         email: result.email,

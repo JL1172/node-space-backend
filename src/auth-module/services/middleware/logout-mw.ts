@@ -12,6 +12,7 @@ import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvi
 import * as validator from 'validator';
 import { JwtStorage } from '../providers/logout-service';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
+import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
 
 @Injectable()
 export class LogoutValidationMiddleware implements NestMiddleware {
@@ -79,9 +80,11 @@ export class VerifyJwtValidMiddleware implements NestMiddleware {
   constructor(
     private readonly jwt: JwtProvider,
     private readonly jwtStorage: JwtStorage,
+    private readonly decodedTokenStorage: DecodedTokenStorageService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
-    const { exp } = await this.jwt.jwtVerification(req.headers.authorization);
+    await this.jwt.jwtVerification(req.headers.authorization);
+    const { exp } = this.decodedTokenStorage.readDecodedToken();
     this.jwtStorage.storeExp(exp);
     next();
   }

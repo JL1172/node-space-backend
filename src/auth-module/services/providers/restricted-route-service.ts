@@ -11,7 +11,6 @@ export class RestrictedJwtService {
     this.storage = { token: '' };
   }
   secureStore(token: HeadersPayloadType['token']): void {
-    console.log(token);
     this.storage['token'] = token;
   }
   secureRead(): HeadersPayloadType {

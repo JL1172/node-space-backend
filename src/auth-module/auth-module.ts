@@ -38,6 +38,7 @@ import {
   RestrictedJwtService,
   RestrictedPayloadService,
 } from './services/providers/restricted-route-service';
+import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
 
 @Module({
   imports: [],
@@ -51,6 +52,7 @@ import {
     JwtStorage,
     RestrictedJwtService,
     RestrictedPayloadService,
+    DecodedTokenStorageService,
   ],
 })
 export class AuthModule implements NestModule {

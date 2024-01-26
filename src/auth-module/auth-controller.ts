@@ -31,9 +31,9 @@ export class AuthController {
     res.status(200);
   }
   @Get('/restricted-check')
-  verifyJwt(@Res({ passthrough: true }) res: Response): void {
+  verifyJwt(): any {
     const payload: RestrictedPayloadStorageType =
       this.payloadStorage.readPayload();
-    res.status(200).json({ authorized: true, payload });
+    return { authorized: true, payload };
   }
 }
