@@ -29,7 +29,7 @@ model SubCategory {
   sub_category_name String   @unique
   category_id       Int
   Category          Category @relation(fields: [category_id], references: [id])
-  Blog              Blog[]
+  Blog              Blog[]   @relation("BlogToSubCategory")
 }
 
 model Token_Blacklist {
@@ -39,17 +39,20 @@ model Token_Blacklist {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  first_name String
-  last_name  String
-  email      String   @unique
-  username   String   @unique
-  password   String
-  role       ROLE     @default(USER)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  Blog       Blog[]
-  Social     Social[]
+  id             Int      @id @default(autoincrement())
+  first_name     String
+  last_name      String
+  email          String   @unique
+  username       String   @unique
+  password       String
+  role           ROLE     @default(USER)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  email_verified Boolean? @default(false)
+  Blog           Blog[]
+  Social         Social[]
+
+  @@unique([first_name, last_name])
 }
 
 model Blog {
@@ -67,7 +70,7 @@ model Blog {
   Category         Category      @relation(fields: [category_id], references: [id])
   User             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   BlogMedia        BlogMedia[]
-  SubCategory      SubCategory[]
+  SubCategory      SubCategory[] @relation("BlogToSubCategory")
 
   @@unique([id, user_id])
 }
@@ -81,6 +84,18 @@ model BlogMedia {
   Blog       Blog     @relation(fields: [blog_id], references: [id], onDelete: Cascade)
 
   @@unique([blog_id, id])
+}
+
+model Ip_Blacklist {
+  id         Int       @id @default(autoincrement())
+  ip_address String    @unique
+  created_at DateTime? @default(now())
+}
+
+model Ip_Watchlist {
+  id         Int       @id @default(autoincrement())
+  ip_address String
+  created_at DateTime? @default(now())
 }
 
 enum CATEGORY_TYPE {

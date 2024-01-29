@@ -5,7 +5,11 @@ const prisma = new PrismaClient();
 async function reset_database() {
   try {
     await prisma.user.deleteMany();
-    await prisma.$executeRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1`;
+    await prisma.ip_Watchlist.deleteMany();
+    await prisma.ip_Blacklist.deleteMany();
+    await prisma.$executeRaw`ALTER SEQUENCE "Ip_Watchlist_id_seq" RESTART WITH 1;`;
+    await prisma.$executeRaw`ALTER SEQUENCE "Ip_Blacklist_id_seq" RESTART WITH 1;`;
+    await prisma.$executeRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
     console.log('Deleted Data Success');
     process.exit(0);
   } catch (err) {

@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from './auth-controller';
 import {
   HashPasswordMiddleware,
+  RegisterRateLimiter,
   RegisterSanitationMiddleware,
   RegisterValidationMiddleware,
   VerifyUserUnique,
@@ -9,8 +10,11 @@ import {
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import { PasswordService } from './services/providers/register-service';
 import {
+  IpAddressLookupMiddleware,
+  IpVerificationMiddleware,
   LoginBodySanitationMiddleware,
   LoginBodyValidationMiddleware,
+  LoginRateLimiter,
   VerifyPasswordCorrectMiddleware,
   VerifyUserExitsMiddleware,
 } from './services/middleware/login-mw';
@@ -27,9 +31,9 @@ import {
   VerifyJwtValidMiddleware,
 } from './services/middleware/logout-mw';
 import { JwtStorage } from './services/providers/logout-service';
-import { RateLimitMiddleware } from 'src/global-utils/global-middleware/RateLimiterMiddleware';
 import { ApiKeyVerification } from 'src/global-utils/global-middleware/ApiKeyMiddleware';
 import {
+  RestrictedRouteRateLimitMiddleware,
   RestrictedRouteSanitation,
   RestrictedRouteValidation,
   VerifyJwtValidationMiddleware,
@@ -58,7 +62,7 @@ import { DecodedTokenStorageService } from 'src/global-utils/global-services/pro
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(ApiKeyVerification, RateLimitMiddleware)
+      .apply(ApiKeyVerification)
       .forRoutes(
         '/api/auth/register',
         '/api/auth/login',
@@ -67,6 +71,7 @@ export class AuthModule implements NestModule {
       );
     consumer
       .apply(
+        RegisterRateLimiter,
         RegisterValidationMiddleware,
         RegisterSanitationMiddleware,
         VerifyUserUnique,
@@ -75,6 +80,9 @@ export class AuthModule implements NestModule {
       .forRoutes('/api/auth/register');
     consumer
       .apply(
+        LoginRateLimiter,
+        IpVerificationMiddleware,
+        IpAddressLookupMiddleware,
         LoginBodyValidationMiddleware,
         LoginBodySanitationMiddleware,
         VerifyUserExitsMiddleware,
@@ -92,6 +100,7 @@ export class AuthModule implements NestModule {
       .forRoutes('/api/auth/logout');
     consumer
       .apply(
+        RestrictedRouteRateLimitMiddleware,
         RestrictedRouteValidation,
         RestrictedRouteSanitation,
         VerifyJwtValidationMiddleware,

@@ -11,6 +11,24 @@ import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import * as validator from 'validator';
 import { PasswordService } from '../providers/register-service';
+import rateLimit from 'express-rate-limit';
+
+@Injectable()
+export class RegisterRateLimiter implements NestMiddleware {
+  private limiter = rateLimit({
+    limit: 20,
+    windowMs: 15 * 60 * 1000,
+    handler: () => {
+      throw new HttpException(
+        'Too Many Requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    },
+  });
+  use(req: Request, res: Response, next: NextFunction) {
+    this.limiter(req, res, next);
+  }
+}
 
 @Injectable()
 export class RegisterValidationMiddleware implements NestMiddleware {

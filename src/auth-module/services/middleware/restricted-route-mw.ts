@@ -16,6 +16,24 @@ import {
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
 import { HeadersPayloadType } from 'src/auth-module/dtos/restricted-route.dto';
 import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
+import rateLimit from 'express-rate-limit';
+
+@Injectable()
+export class RestrictedRouteRateLimitMiddleware implements NestMiddleware {
+  private limiter = rateLimit({
+    limit: 50,
+    windowMs: 1000 * 60 * 15,
+    handler: () => {
+      throw new HttpException(
+        'Too Many Requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    },
+  });
+  use(req: Request, res: Response, next: NextFunction) {
+    this.limiter(req, res, next);
+  }
+}
 
 @Injectable()
 export class RestrictedRouteValidation implements NestMiddleware {
