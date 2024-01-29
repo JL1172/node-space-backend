@@ -48,6 +48,16 @@ export class PrismaProvider {
   async blackListJwt(payload: PayloadBody) {
     await this.prisma.token_Blacklist.create({ data: payload });
   }
+  async clearIpEntries() {
+    await this.prisma.ip_Watchlist.deleteMany({
+      where: { created_at: { lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+    });
+  }
+  async clearBlackListEntries() {
+    await this.prisma.ip_Blacklist.deleteMany({
+      where: { created_at: { lt: new Date(Date.now() - 1000 * 604800) } },
+    });
+  }
   async findBlacklistedAddress(payload: Ip_Blacklist['ip_address']) {
     const result = await this.prisma.ip_Blacklist.findUnique({
       where: { ip_address: payload },

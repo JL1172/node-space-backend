@@ -39,7 +39,7 @@ export class IpVerificationMiddleware implements NestMiddleware {
         }
       }
     } catch (err) {
-      throw new HttpException(err, HttpStatus.FORBIDDEN);
+      throw new HttpException(err.message, HttpStatus.FORBIDDEN);
     }
   }
 }
@@ -83,7 +83,7 @@ export class IpAddressLookupMiddleware implements NestMiddleware {
         }
       }
     } catch (err) {
-      throw new HttpException(err, HttpStatus.FORBIDDEN);
+      throw new HttpException(err.message, HttpStatus.FORBIDDEN);
     }
   }
 }

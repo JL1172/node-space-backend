@@ -23,3 +23,40 @@ export class CronJobOne {
     }
   }
 }
+
+@Injectable()
+export class CronJobTwo {
+  private readonly logger = new Logger(CronJobTwo.name);
+  constructor(private readonly prisma: PrismaProvider) {
+    this.logger = new Logger(CronJobTwo.name);
+  }
+  @Cron(CronExpression.EVERY_HOUR)
+  async queryIpAddresses(): Promise<void> {
+    try {
+      await this.prisma.clearIpEntries();
+      this.logger.log(
+        `[Background Worker] Cron Job Two Executed Successfully [IP Addresses On Watchlist Exceeding 24 Hours Deleted]`,
+      );
+    } catch (err) {
+      this.logger.error(`Error Executing Cron Job: ${err}`);
+    }
+  }
+}
+@Injectable()
+export class CronJobThree {
+  private readonly logger = new Logger(CronJobThree.name);
+  constructor(private readonly prisma: PrismaProvider) {
+    this.logger = new Logger(CronJobTwo.name);
+  }
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async queryIpAddresses(): Promise<void> {
+    try {
+      await this.prisma.clearBlackListEntries();
+      this.logger.log(
+        `[Background Worker] Cron Job Three Executed Successfully [IP Addresses On Blacklist Exceeding 1 Week Deleted]`,
+      );
+    } catch (err) {
+      this.logger.error(`Error Executing Cron Job: ${err}`);
+    }
+  }
+}
