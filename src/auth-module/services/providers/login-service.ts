@@ -3,7 +3,7 @@ import { PrismaProvider } from 'src/global-utils/global-services/providers/Prism
 import * as bcrypt from 'bcrypt';
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
 import { User } from '@prisma/client';
-
+import * as os from 'node:os';
 @Injectable()
 export class PasswordComparison {
   private readonly bcrypt = bcrypt;
@@ -46,5 +46,52 @@ export class UserJwtStorage {
   }
   async buildJwt() {
     return await this.jwtProvider.jwtBuilder(this.user);
+  }
+}
+
+@Injectable()
+export class IpAddressLookupProvider {
+  private readonly os = os;
+  constructor(private readonly prisma: PrismaProvider) {
+    this.os = os;
+  }
+  async watchlistIpAddress(req: any) {
+    try {
+      if (process.env.STATUS === 'dev') {
+        const ipAddress = this.os.networkInterfaces().wlp48s0[0]?.address;
+        const payload = {
+          ip_address: ipAddress,
+          created_at: new Date(),
+        };
+        const result = await this.prisma.handleIpAddresses(payload);
+        return result;
+        // if (result) {
+        //   return true;
+        //   throw new HttpException(
+        //     'Too Many Requests, Suspicious Amount Of Attempts.',
+        //     HttpStatus.FORBIDDEN,
+        //   );
+        // }
+      } else {
+        const ipAddress = req.socket.remoteAddress;
+        const modded_ip = ipAddress.split(' ')[0].replaceAll(',', '');
+        const payload = {
+          ip_address: modded_ip,
+          created_at: new Date(),
+        };
+        const result = await this.prisma.handleIpAddresses(payload);
+        return result;
+        // if (result) {
+        //   throw new HttpException(
+        //     'Too Many Requests, Suspicious Amount Of Attempts.',
+        //     HttpStatus.FORBIDDEN,
+        //   );
+        // } else {
+        //   return false;
+        // }
+      }
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.TOO_MANY_REQUESTS);
+    }
   }
 }

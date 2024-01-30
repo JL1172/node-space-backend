@@ -10,7 +10,11 @@ import { NextFunction, Request, Response } from 'express';
 import { LoginType } from 'src/auth-module/dtos/login-dto';
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import * as validator from 'validator';
-import { PasswordComparison, UserJwtStorage } from '../providers/login-service';
+import {
+  IpAddressLookupProvider,
+  PasswordComparison,
+  UserJwtStorage,
+} from '../providers/login-service';
 import rateLimit from 'express-rate-limit';
 import * as os from 'node:os';
 
@@ -24,7 +28,7 @@ export class IpVerificationMiddleware implements NestMiddleware {
         const isBlacklisted =
           await this.prisma.findBlacklistedAddress(ipAddress);
         if (isBlacklisted) {
-          throw new HttpException('Not Allowed.', HttpStatus.FORBIDDEN);
+          throw new HttpException('Forbidden.', HttpStatus.FORBIDDEN);
         } else {
           next();
         }
@@ -33,51 +37,7 @@ export class IpVerificationMiddleware implements NestMiddleware {
         const isBlacklisted =
           await this.prisma.findBlacklistedAddress(ipAddress);
         if (isBlacklisted) {
-          throw new HttpException('Not Allowed.', HttpStatus.FORBIDDEN);
-        } else {
-          next();
-        }
-      }
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.FORBIDDEN);
-    }
-  }
-}
-
-@Injectable()
-export class IpAddressLookupMiddleware implements NestMiddleware {
-  constructor(private readonly prisma: PrismaProvider) {}
-  async use(req: Request, res: Response, next: NextFunction) {
-    try {
-      if (process.env.STATUS === 'dev') {
-        const ipAddress = os.networkInterfaces().wlp48s0[0]?.address;
-
-        const payload = {
-          ip_address: ipAddress,
-          created_at: new Date(),
-        };
-        const result = await this.prisma.handleIpAddresses(payload);
-        if (result) {
-          throw new HttpException(
-            'Too Many Requests, Suspicious Amount Of Attempts.',
-            HttpStatus.FORBIDDEN,
-          );
-        } else {
-          next();
-        }
-      } else {
-        const ipAddress = req.socket.remoteAddress;
-        const modded_ip = ipAddress.split(' ')[0].replaceAll(',', '');
-        const payload = {
-          ip_address: modded_ip,
-          created_at: new Date(),
-        };
-        const result = await this.prisma.handleIpAddresses(payload);
-        if (result) {
-          throw new HttpException(
-            'Too Many Requests, Suspicious Amount Of Attempts.',
-            HttpStatus.FORBIDDEN,
-          );
+          throw new HttpException('Forbidden.', HttpStatus.FORBIDDEN);
         } else {
           next();
         }
@@ -90,16 +50,20 @@ export class IpAddressLookupMiddleware implements NestMiddleware {
 
 @Injectable()
 export class LoginRateLimiter implements NestMiddleware {
-  private limiter = rateLimit({
-    limit: 5,
-    windowMs: 15 * 60 * 1000,
-    handler: () => {
-      throw new HttpException(
-        'Too Many Login Attempts',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    },
-  });
+  private limiter = rateLimit();
+  constructor(private readonly ipAddressProvider: IpAddressLookupProvider) {
+    this.limiter = rateLimit({
+      max: 5,
+      windowMs: 5000,
+      handler: (req) => {
+        this.ipAddressProvider.watchlistIpAddress(req);
+        throw new HttpException(
+          'Too Many Requests',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      },
+    });
+  }
   use(req: Request, res: Response, next: NextFunction) {
     this.limiter(req, res, next);
   }
@@ -107,6 +71,7 @@ export class LoginRateLimiter implements NestMiddleware {
 
 @Injectable()
 export class LoginBodyValidationMiddleware implements NestMiddleware {
+  constructor(private readonly ipAddressProvider: IpAddressLookupProvider) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const result = plainToClass(LoginType, req.body);
     try {
@@ -116,6 +81,11 @@ export class LoginBodyValidationMiddleware implements NestMiddleware {
       });
       next();
     } catch (err) {
+      const ipAddress =
+        process.env.STATUS === 'dev'
+          ? os.networkInterfaces().wlp48s0[0]?.address
+          : req.socket.remoteAddress;
+      await this.ipAddressProvider.watchlistIpAddress(ipAddress);
       const payload = {};
       err.forEach((n) => {
         payload[n.property] = n.constraints;

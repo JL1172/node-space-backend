@@ -10,7 +10,6 @@ import {
 import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 import { PasswordService } from './services/providers/register-service';
 import {
-  IpAddressLookupMiddleware,
   IpVerificationMiddleware,
   LoginBodySanitationMiddleware,
   LoginBodyValidationMiddleware,
@@ -19,6 +18,7 @@ import {
   VerifyUserExitsMiddleware,
 } from './services/middleware/login-mw';
 import {
+  IpAddressLookupProvider,
   PasswordComparison,
   UserJwtStorage,
 } from './services/providers/login-service';
@@ -57,6 +57,7 @@ import { DecodedTokenStorageService } from 'src/global-utils/global-services/pro
     RestrictedJwtService,
     RestrictedPayloadService,
     DecodedTokenStorageService,
+    IpAddressLookupProvider,
   ],
 })
 export class AuthModule implements NestModule {
@@ -82,11 +83,10 @@ export class AuthModule implements NestModule {
       .apply(
         LoginRateLimiter,
         IpVerificationMiddleware,
-        IpAddressLookupMiddleware,
-        LoginBodyValidationMiddleware,
-        LoginBodySanitationMiddleware,
-        VerifyUserExitsMiddleware,
-        VerifyPasswordCorrectMiddleware,
+        // LoginBodyValidationMiddleware,
+        // LoginBodySanitationMiddleware,
+        // VerifyUserExitsMiddleware,
+        // VerifyPasswordCorrectMiddleware,
       )
       .forRoutes('/api/auth/login');
     consumer
