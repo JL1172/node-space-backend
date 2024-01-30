@@ -16,7 +16,7 @@ import rateLimit from 'express-rate-limit';
 @Injectable()
 export class RegisterRateLimiter implements NestMiddleware {
   private limiter = rateLimit({
-    limit: 20,
+    limit: 50,
     windowMs: 15 * 60 * 1000,
     handler: () => {
       throw new HttpException(
