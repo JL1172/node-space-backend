@@ -4,36 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
 import { User } from '@prisma/client';
 import * as os from 'node:os';
-@Injectable()
-export class PasswordComparison {
-  private readonly bcrypt = bcrypt;
-  private hashedPassword = '';
-  constructor(private readonly prisma: PrismaProvider) {
-    this.bcrypt = bcrypt;
-    this.hashedPassword = '';
-  }
-  async storePassword(password: string): Promise<void> {
-    this.hashedPassword = password;
-  }
-  async comparePassword(password: string): Promise<boolean | void> {
-    try {
-      const result: boolean = await this.bcrypt.compare(
-        password,
-        this.hashedPassword,
-      );
-      if (result) {
-        return true;
-      } else {
-        throw new HttpException(
-          'Invalid Username or Password',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-    } catch (err) {
-      throw new HttpException(err, HttpStatus.UNAUTHORIZED);
-    }
-  }
-}
+import { Request } from 'express';
 
 @Injectable()
 export class UserJwtStorage {
@@ -92,6 +63,47 @@ export class IpAddressLookupProvider {
       }
     } catch (err) {
       throw new HttpException(err, HttpStatus.TOO_MANY_REQUESTS);
+    }
+  }
+}
+@Injectable()
+export class PasswordComparison {
+  private readonly bcrypt = bcrypt;
+  private hashedPassword = '';
+  constructor(
+    private readonly prisma: PrismaProvider,
+    private readonly ipAddressProvider: IpAddressLookupProvider,
+  ) {
+    this.bcrypt = bcrypt;
+    this.hashedPassword = '';
+  }
+  async storePassword(password: string): Promise<void> {
+    this.hashedPassword = password;
+  }
+  async comparePassword(
+    password: string,
+    req: Request,
+  ): Promise<boolean | void> {
+    try {
+      const result: boolean = await this.bcrypt.compare(
+        password,
+        this.hashedPassword,
+      );
+      if (result) {
+        return true;
+      } else {
+        throw new HttpException(
+          'Invalid Username or Password',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+    } catch (err) {
+      const ipAddress =
+        process.env.STATUS === 'dev'
+          ? os.networkInterfaces().wlp48s0[0]?.address
+          : req.socket.remoteAddress;
+      await this.ipAddressProvider.watchlistIpAddress(ipAddress);
+      throw new HttpException(err, HttpStatus.UNAUTHORIZED);
     }
   }
 }

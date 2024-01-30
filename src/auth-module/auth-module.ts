@@ -83,10 +83,10 @@ export class AuthModule implements NestModule {
       .apply(
         LoginRateLimiter,
         IpVerificationMiddleware,
-        // LoginBodyValidationMiddleware,
-        // LoginBodySanitationMiddleware,
-        // VerifyUserExitsMiddleware,
-        // VerifyPasswordCorrectMiddleware,
+        LoginBodyValidationMiddleware,
+        LoginBodySanitationMiddleware,
+        VerifyUserExitsMiddleware,
+        VerifyPasswordCorrectMiddleware,
       )
       .forRoutes('/api/auth/login');
     consumer

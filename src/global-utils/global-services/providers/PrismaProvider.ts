@@ -73,7 +73,7 @@ export class PrismaProvider {
       where: { ip_address: payload.ip_address },
     });
     //conditional if there are ipaddresses
-    if (ipAddressList.length >= 10) {
+    if (ipAddressList.length >= 20) {
       //initializing array with only ms values
       const dates: number[] = ipAddressList.map((n) => {
         if (n.created_at) {
@@ -92,7 +92,7 @@ export class PrismaProvider {
       for (const date of dates) {
         if (checkRange(date)) counter += 1;
       }
-      if (counter >= 10) {
+      if (counter >= 20) {
         const isAlreadyBlacklisted = await this.prisma.ip_Blacklist.findUnique({
           where: { ip_address: payload.ip_address },
         });

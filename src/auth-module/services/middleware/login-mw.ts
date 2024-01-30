@@ -53,9 +53,10 @@ export class LoginRateLimiter implements NestMiddleware {
   private limiter = rateLimit();
   constructor(private readonly ipAddressProvider: IpAddressLookupProvider) {
     this.limiter = rateLimit({
-      max: 5,
-      windowMs: 5000,
+      max: 15,
+      windowMs: 1000 * 60 * 10,
       handler: (req) => {
+        //this is not blocking the event stream this way for some reason, this handler function does not handle that well
         this.ipAddressProvider.watchlistIpAddress(req);
         throw new HttpException(
           'Too Many Requests',
@@ -121,6 +122,7 @@ export class VerifyUserExitsMiddleware implements NestMiddleware {
     private readonly prisma: PrismaProvider,
     private readonly passwordService: PasswordComparison,
     private readonly userStorageService: UserJwtStorage,
+    private readonly ipAddressProvider: IpAddressLookupProvider,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const result = await this.prisma.findUserForLogin(req.body.username);
@@ -129,6 +131,11 @@ export class VerifyUserExitsMiddleware implements NestMiddleware {
       this.userStorageService.storeUser(result);
       next();
     } else {
+      const ipAddress =
+        process.env.STATUS === 'dev'
+          ? os.networkInterfaces().wlp48s0[0]?.address
+          : req.socket.remoteAddress;
+      await this.ipAddressProvider.watchlistIpAddress(ipAddress);
       throw new HttpException(
         'Invalid Username or Password',
         HttpStatus.UNAUTHORIZED,
@@ -141,7 +148,7 @@ export class VerifyUserExitsMiddleware implements NestMiddleware {
 export class VerifyPasswordCorrectMiddleware implements NestMiddleware {
   constructor(private readonly passwordService: PasswordComparison) {}
   async use(req: Request, res: Response, next: NextFunction) {
-    await this.passwordService.comparePassword(req.body.password);
+    await this.passwordService.comparePassword(req.body.password, req);
     next();
   }
 }
