@@ -58,6 +58,16 @@ export class PrismaProvider {
       where: { created_at: { lt: new Date(Date.now() - 1000 * 604800) } },
     });
   }
+  async findCategories(): Promise<Record<any, any>[]> {
+    return await this.prisma.category.findMany({
+      select: {
+        category_type: true,
+        category_description: true,
+        SubCategory: true,
+      },
+    });
+  }
+
   async findBlacklistedAddress(payload: Ip_Blacklist['ip_address']) {
     const result = await this.prisma.ip_Blacklist.findUnique({
       where: { ip_address: payload },

@@ -13,7 +13,7 @@ export class BlogController {
   async fetchBlogCategories(
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    const result = ['backend'];
-    res.status(200).json({ blogCategories: result });
+    const categories = await this.prisma.findCategories();
+    res.status(200).json({ categories });
   }
 }

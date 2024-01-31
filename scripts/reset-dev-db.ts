@@ -91,19 +91,59 @@ export async function seed_categories() {
         category_id: 1,
       },
       {
-        sub_category_name: 'Node.js',
+        sub_category_name: 'Authentication',
         category_id: 2,
       },
       {
-        sub_category_name: 'Express.js',
+        sub_category_name: 'Authorization',
         category_id: 2,
       },
       {
-        sub_category_name: 'Koa.js',
+        sub_category_name: 'Error Handling',
         category_id: 2,
       },
       {
-        sub_category_name: 'NestJS',
+        sub_category_name: 'Logging',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Caching',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Middleware',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Routing',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'ORM (Object-Relational Mapping)',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Testing',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Security',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Validation',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Background Jobs',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'Rate Limiting',
+        category_id: 2,
+      },
+      {
+        sub_category_name: 'WebSockets',
         category_id: 2,
       },
       {
@@ -111,42 +151,203 @@ export async function seed_categories() {
         category_id: 2,
       },
       {
-        sub_category_name: 'REST API',
-        category_id: 2,
-      },
-      {
-        sub_category_name: 'MySQL',
+        sub_category_name: 'SQL (Structured Query Language)',
         category_id: 3,
       },
       {
-        sub_category_name: 'PostgreSQL',
+        sub_category_name: 'Indexing',
         category_id: 3,
       },
       {
-        sub_category_name: 'MongoDB',
+        sub_category_name: 'Transactions',
         category_id: 3,
       },
       {
-        sub_category_name: 'SQLite',
+        sub_category_name: 'ACID Compliance',
         category_id: 3,
       },
       {
-        sub_category_name: 'Firebase',
+        sub_category_name: 'NoSQL (Not Only SQL)',
         category_id: 3,
       },
       {
-        sub_category_name: 'DynamoDB',
+        sub_category_name: 'Sharding',
         category_id: 3,
       },
       {
-        sub_category_name: 'Couchbase',
+        sub_category_name: 'Replication',
         category_id: 3,
       },
       {
-        sub_category_name: 'Redis',
+        sub_category_name: 'Backups',
         category_id: 3,
+      },
+      {
+        sub_category_name: 'Triggers',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Stored Procedures',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Views',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Full-Text Search',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Geospatial Data',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Data Modeling',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Database Administration',
+        category_id: 3,
+      },
+      {
+        sub_category_name: 'Child Process',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Cluster',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Crypto',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'DNS',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Events',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'File System',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'HTTP',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'HTTPS',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Net',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'OS',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Path',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Process',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Query String',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Stream',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Timers',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'URL',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Utilities',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'V8',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Zlib',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Readline',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'REPL',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'TTY',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'HTTP/2',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Buffer',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Cryptography',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Domains',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Module',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Performance',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Punycode',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'String Decoder',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'TLS/SSL',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'UDP/Datagram',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'VM',
+        category_id: 4,
+      },
+      {
+        sub_category_name: 'Worker Threads',
+        category_id: 4,
       },
     ];
+
     await prisma.$transaction([
       prisma.category.createMany({ data: categories }),
       prisma.subCategory.createMany({ data: subcategories }),
