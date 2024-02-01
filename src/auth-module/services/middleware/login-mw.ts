@@ -57,7 +57,7 @@ export class LoginRateLimiter implements NestMiddleware {
       windowMs: 1000 * 60 * 10,
       handler: (req) => {
         //this is not blocking the event stream this way for some reason, this handler function does not handle that well
-        this.ipAddressProvider.watchlistIpAddress(req);
+        this.ipAddressProvider.watchlistIpAddress(req, 20);
         throw new HttpException(
           'Too Many Requests',
           HttpStatus.TOO_MANY_REQUESTS,
@@ -82,11 +82,7 @@ export class LoginBodyValidationMiddleware implements NestMiddleware {
       });
       next();
     } catch (err) {
-      const ipAddress =
-        process.env.STATUS === 'dev'
-          ? os.networkInterfaces().wlp48s0[0]?.address
-          : req.socket.remoteAddress;
-      await this.ipAddressProvider.watchlistIpAddress(ipAddress);
+      await this.ipAddressProvider.watchlistIpAddress(req, 20);
       const payload = {};
       err.forEach((n) => {
         payload[n.property] = n.constraints;
@@ -131,11 +127,7 @@ export class VerifyUserExitsMiddleware implements NestMiddleware {
       this.userStorageService.storeUser(result);
       next();
     } else {
-      const ipAddress =
-        process.env.STATUS === 'dev'
-          ? os.networkInterfaces().wlp48s0[0]?.address
-          : req.socket.remoteAddress;
-      await this.ipAddressProvider.watchlistIpAddress(ipAddress);
+      await this.ipAddressProvider.watchlistIpAddress(req, 20);
       throw new HttpException(
         'Invalid Username or Password',
         HttpStatus.UNAUTHORIZED,

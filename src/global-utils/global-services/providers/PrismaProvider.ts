@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Ip_Blacklist, PrismaClient, User } from '@prisma/client';
 import { LogoutBody, PayloadBody } from 'src/auth-module/dtos/logout-dto';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
+import {
+  BlogPayloadType,
+  FinalBlogPayloadType,
+} from 'src/blog-module/dtos/blog-dtos';
 
 @Injectable()
 export class PrismaProvider {
@@ -68,22 +72,33 @@ export class PrismaProvider {
     });
   }
 
+  async uploadBlogTotal(
+    files: { filename: string; size: number; mimeType: string; data: Buffer }[],
+    blogFormData: FinalBlogPayloadType,
+    subCategories: BlogPayloadType['SubCategory'],
+  ) {
+    const result = await this.prisma.blog.create({ data: blogFormData });
+    return result;
+  }
   async findBlacklistedAddress(payload: Ip_Blacklist['ip_address']) {
     const result = await this.prisma.ip_Blacklist.findUnique({
       where: { ip_address: payload },
     });
     return result;
   }
-  async handleIpAddresses(payload: {
-    ip_address: string;
-    created_at: Date;
-  }): Promise<void | boolean> {
+  async handleIpAddresses(
+    payload: {
+      ip_address: string;
+      created_at: Date;
+    },
+    limit: number,
+  ): Promise<void | boolean> {
     //grabbing list of ipaddresses
     const ipAddressList = await this.prisma.ip_Watchlist.findMany({
       where: { ip_address: payload.ip_address },
     });
     //conditional if there are ipaddresses
-    if (ipAddressList.length >= 20) {
+    if (ipAddressList.length >= limit) {
       //initializing array with only ms values
       const dates: number[] = ipAddressList.map((n) => {
         if (n.created_at) {
@@ -102,7 +117,7 @@ export class PrismaProvider {
       for (const date of dates) {
         if (checkRange(date)) counter += 1;
       }
-      if (counter >= 20) {
+      if (counter >= limit) {
         const isAlreadyBlacklisted = await this.prisma.ip_Blacklist.findUnique({
           where: { ip_address: payload.ip_address },
         });

@@ -7,11 +7,34 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import { IpAddressLookupProvider } from 'src/auth-module/services/providers/login-service';
 import { BlogPayloadType } from 'src/blog-module/dtos/blog-dtos';
 import * as validator from 'validator';
+import { ReqStorageProvider } from '../providers/blog-provider';
+
+@Injectable()
+export class RateLimitMiddlewareBlog implements NestMiddleware {
+  constructor(private readonly watchlistIp: IpAddressLookupProvider) {}
+  private readonly rateLimit = rateLimit({
+    limit: 15,
+    windowMs: 1000 * 60 * 10,
+    handler: (req) => {
+      this.watchlistIp.watchlistIpAddress(req, 15);
+      throw new HttpException(
+        'Too Many Requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    },
+  });
+  use(req: Request, res: Response, next: NextFunction) {
+    this.rateLimit(req, res, next);
+  }
+}
 
 @Injectable()
 export class BlogFormValidationMiddleware implements NestMiddleware {
+  constructor(private readonly watchlistIp: IpAddressLookupProvider) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const result: BlogPayloadType = plainToClass(BlogPayloadType, req.body);
     try {
@@ -21,6 +44,7 @@ export class BlogFormValidationMiddleware implements NestMiddleware {
       });
       next();
     } catch (err) {
+      await this.watchlistIp.watchlistIpAddress(req, 15);
       const errReturnObject = err.map((n) => ({
         [n.property]: n.constraints,
       }));
@@ -32,7 +56,7 @@ export class BlogFormValidationMiddleware implements NestMiddleware {
 @Injectable()
 export class BlogFormSanitationMiddleware implements NestMiddleware {
   private readonly validator = validator;
-  constructor() {
+  constructor(private readonly reqStorage: ReqStorageProvider) {
     this.validator = validator;
   }
   use(req: Request, res: Response, next: NextFunction) {
@@ -45,7 +69,6 @@ export class BlogFormSanitationMiddleware implements NestMiddleware {
       'blog_summary',
       // 'user_id',
       'blog_author_name',
-      'created_at',
       // 'category_id',
     ];
     keys.forEach((n: string) => {
@@ -62,6 +85,7 @@ export class BlogFormSanitationMiddleware implements NestMiddleware {
       n = this.validator.default.blacklist(n, /[\x00-\x1F\s;'"<>]/.source);
       return n;
     });
+    this.reqStorage.storeReq(req);
     next();
   }
 }

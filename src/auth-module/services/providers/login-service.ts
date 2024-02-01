@@ -26,7 +26,7 @@ export class IpAddressLookupProvider {
   constructor(private readonly prisma: PrismaProvider) {
     this.os = os;
   }
-  async watchlistIpAddress(req: any) {
+  async watchlistIpAddress(req: any, limit: number) {
     try {
       if (process.env.STATUS === 'dev') {
         const ipAddress = this.os.networkInterfaces().wlp48s0[0]?.address;
@@ -34,7 +34,7 @@ export class IpAddressLookupProvider {
           ip_address: ipAddress,
           created_at: new Date(),
         };
-        const result = await this.prisma.handleIpAddresses(payload);
+        const result = await this.prisma.handleIpAddresses(payload, limit);
         return result;
         // if (result) {
         //   return true;
@@ -50,7 +50,7 @@ export class IpAddressLookupProvider {
           ip_address: modded_ip,
           created_at: new Date(),
         };
-        const result = await this.prisma.handleIpAddresses(payload);
+        const result = await this.prisma.handleIpAddresses(payload, limit);
         return result;
         // if (result) {
         //   throw new HttpException(
@@ -70,10 +70,7 @@ export class IpAddressLookupProvider {
 export class PasswordComparison {
   private readonly bcrypt = bcrypt;
   private hashedPassword = '';
-  constructor(
-    private readonly prisma: PrismaProvider,
-    private readonly ipAddressProvider: IpAddressLookupProvider,
-  ) {
+  constructor(private readonly ipAddressProvider: IpAddressLookupProvider) {
     this.bcrypt = bcrypt;
     this.hashedPassword = '';
   }
@@ -98,11 +95,7 @@ export class PasswordComparison {
         );
       }
     } catch (err) {
-      const ipAddress =
-        process.env.STATUS === 'dev'
-          ? os.networkInterfaces().wlp48s0[0]?.address
-          : req.socket.remoteAddress;
-      await this.ipAddressProvider.watchlistIpAddress(ipAddress);
+      await this.ipAddressProvider.watchlistIpAddress(req, 20);
       throw new HttpException(err, HttpStatus.UNAUTHORIZED);
     }
   }

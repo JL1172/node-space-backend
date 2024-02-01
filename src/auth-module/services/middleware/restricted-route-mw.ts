@@ -101,6 +101,8 @@ export class VerifyJwtValidationMiddleware implements NestMiddleware {
       this.payloadStorage.storePayload({
         username: result.username,
         email: result.email,
+        id: result.id,
+        subject: result.subject,
       });
       next();
     } catch (err: unknown | any) {

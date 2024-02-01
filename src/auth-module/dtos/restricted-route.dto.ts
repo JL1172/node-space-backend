@@ -1,3 +1,4 @@
+import { ROLE } from '@prisma/client';
 import { IsJWT, IsNotEmpty } from 'class-validator';
 
 export class HeadersPayloadType {
@@ -9,4 +10,6 @@ export class HeadersPayloadType {
 export class RestrictedPayloadStorageType {
   username: string;
   email: string;
+  id: number;
+  subject: ROLE;
 }

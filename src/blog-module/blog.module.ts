@@ -17,7 +17,15 @@ import { DecodedTokenStorageService } from 'src/global-utils/global-services/pro
 import {
   BlogFormSanitationMiddleware,
   BlogFormValidationMiddleware,
+  RateLimitMiddlewareBlog,
 } from './services/middleware/blog-mw';
+import {
+  ReqStorageProvider,
+  SanitizeFileNameProvider,
+  ScanImageForMagicNumberProvider,
+} from './services/providers/blog-provider';
+import { IpVerificationMiddleware } from 'src/auth-module/services/middleware/login-mw';
+import { IpAddressLookupProvider } from 'src/auth-module/services/providers/login-service';
 
 @Module({
   imports: [],
@@ -28,6 +36,10 @@ import {
     RestrictedPayloadService,
     JwtProvider,
     DecodedTokenStorageService,
+    SanitizeFileNameProvider,
+    ScanImageForMagicNumberProvider,
+    IpAddressLookupProvider,
+    ReqStorageProvider,
   ],
 })
 export class BlogModule implements NestModule {
@@ -40,9 +52,18 @@ export class BlogModule implements NestModule {
         RestrictedRouteSanitation,
         VerifyJwtValidationMiddleware,
       )
-      .forRoutes('/api/categories', '/api/create-blog');
-    // consumer
-    //   .apply(BlogFormValidationMiddleware, BlogFormSanitationMiddleware)
-    //   .forRoutes('/api/create-blog');
+      .forRoutes('/api/categories');
+    consumer
+      .apply(
+        ApiKeyVerification,
+        RateLimitMiddlewareBlog,
+        IpVerificationMiddleware,
+        RestrictedRouteValidation,
+        RestrictedRouteSanitation,
+        VerifyJwtValidationMiddleware,
+        BlogFormValidationMiddleware,
+        BlogFormSanitationMiddleware,
+      )
+      .forRoutes('/api/create-blog');
   }
 }

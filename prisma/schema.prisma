@@ -25,11 +25,11 @@ model Social {
 }
 
 model SubCategory {
-  id                Int      @id @default(autoincrement())
-  sub_category_name String   @unique
+  id                Int                 @id @default(autoincrement())
+  sub_category_name String              @unique
   category_id       Int
-  Category          Category @relation(fields: [category_id], references: [id])
-  Blog              Blog[]   @relation("BlogToSubCategory")
+  Category          Category            @relation(fields: [category_id], references: [id])
+  BlogToSubCategory BlogToSubCategory[]
 }
 
 model Token_Blacklist {
@@ -56,32 +56,45 @@ model User {
 }
 
 model Blog {
-  id               Int           @id @default(autoincrement())
-  blog_title       String
-  blog_intro       String
-  blog_body        String
-  blog_outro       String
-  blog_summary     String
-  user_id          Int
-  blog_author_name String?
-  category_id      Int
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @updatedAt
-  Category         Category      @relation(fields: [category_id], references: [id])
-  User             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  BlogMedia        BlogMedia[]
-  SubCategory      SubCategory[] @relation("BlogToSubCategory")
+  id                Int                 @id @default(autoincrement())
+  blog_title        String
+  blog_intro        String
+  blog_body         String
+  blog_outro        String
+  blog_summary      String
+  user_id           Int
+  blog_author_name  String?
+  category_id       Int
+  created_at        DateTime?           @default(now())
+  updated_at        DateTime?           @updatedAt
+  Category          Category            @relation(fields: [category_id], references: [id])
+  User              User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  BlogMedia         BlogMedia[]
+  BlogToSubCategory BlogToSubCategory[]
 
   @@unique([id, user_id])
 }
 
+model BlogToSubCategory {
+  id             Int         @id @default(autoincrement())
+  blog_id        Int
+  blog           Blog        @relation(fields: [blog_id], references: [id])
+  subcategory_id Int
+  subcategory    SubCategory @relation(fields: [subcategory_id], references: [id])
+
+  @@unique([blog_id, subcategory_id])
+}
+
 model BlogMedia {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   blog_img   String
+  size       Int
+  mimeType   MIME_TYPE
+  data       Bytes
   blog_id    Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  Blog       Blog     @relation(fields: [blog_id], references: [id], onDelete: Cascade)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  Blog       Blog      @relation(fields: [blog_id], references: [id], onDelete: Cascade)
 
   @@unique([blog_id, id])
 }
@@ -115,4 +128,10 @@ enum SOCIAL {
   GITHUB
   INSTAGRAM
   PORTFOLIO
+}
+
+enum MIME_TYPE {
+  png
+  jpeg
+  jpg
 }

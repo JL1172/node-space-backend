@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsDateString,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -39,7 +38,7 @@ export class BlogPayloadType {
   blog_intro: string;
   @IsString({ message: 'Incorrect Format For Body.' })
   @IsNotEmpty({ message: 'Blog Body Required.' })
-  @Matches(/^[A-Za-z0-9 :'\-\.,!&(){}\[\]=?|\/\\]*$/g, {
+  @Matches(/^[A-Za-z0-9 :;'\-\.,!&(){}\[\]=?|\/\\]*$/g, {
     message: `Blog Body Must Only Contain The Following: ${match_explanation}.`,
   })
   blog_body: string;
@@ -55,9 +54,6 @@ export class BlogPayloadType {
     message: `Blog Summary Must Only Contain The Following: ${match_explanation}.`,
   })
   blog_summary: string;
-  @IsNotEmpty({ message: 'User Id Required.' })
-  @IsNumber({}, { message: 'User Id Must Be Number.' })
-  user_id: number;
   @IsNotEmpty({ message: 'Author Name Required.' })
   @IsString({ message: 'Incorrect Format For Author.' })
   @Matches(/^[A-Za-z0-9 ]*$/, { message: 'Name Must Only Be Alphanumeric.' })
@@ -65,10 +61,30 @@ export class BlogPayloadType {
   @IsNotEmpty({ message: 'Category Required.' })
   @IsNumber({}, { message: 'Incorrect Format For Category.' })
   category_id: number;
-  @IsDateString({}, { message: 'Must Be A Valid Date.' })
-  @IsNotEmpty({ message: 'Date Required.' })
-  created_at: Date;
   @IsNotEmpty({ message: 'At Least One Sub Category Is Required.' })
   @IsArray({ message: 'Must Be An Array.' })
   SubCategory: string[];
 }
+export class FinalBlogPayloadType {
+  blog_title: string;
+  blog_intro: string;
+  blog_body: string;
+  blog_outro: string;
+  blog_summary: string;
+  user_id: number;
+  blog_author_name: string;
+  category_id: number;
+}
+/*
+id: number;
+blog_title: string;
+blog_intro: string;
+blog_body: string;
+blog_outro: string;
+blog_summary: string;
+user_id: number;
+blog_author_name: string;
+category_id: number;
+created_at: Date;
+updated_at: Date;
+*/
