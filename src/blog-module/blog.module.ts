@@ -14,7 +14,10 @@ import {
 } from 'src/auth-module/services/providers/restricted-route-service';
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
 import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
-import { BlogFormValidationMiddleware } from './services/middleware/blog-mw';
+import {
+  BlogFormSanitationMiddleware,
+  BlogFormValidationMiddleware,
+} from './services/middleware/blog-mw';
 
 @Module({
   imports: [],
@@ -38,6 +41,8 @@ export class BlogModule implements NestModule {
         VerifyJwtValidationMiddleware,
       )
       .forRoutes('/api/categories', '/api/create-blog');
-    consumer.apply(BlogFormValidationMiddleware).forRoutes('/api/create-blog');
+    // consumer
+    //   .apply(BlogFormValidationMiddleware, BlogFormSanitationMiddleware)
+    //   .forRoutes('/api/create-blog');
   }
 }
