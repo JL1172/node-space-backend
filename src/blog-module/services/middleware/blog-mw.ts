@@ -20,7 +20,7 @@ export class RateLimitMiddlewareBlog implements NestMiddleware {
     limit: 15,
     windowMs: 1000 * 60 * 10,
     handler: (req) => {
-      this.watchlistIp.watchlistIpAddress(req, 15);
+      this.watchlistIp.watchlistIpAddress(req, 20);
       throw new HttpException(
         'Too Many Requests',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -31,7 +31,7 @@ export class RateLimitMiddlewareBlog implements NestMiddleware {
     this.rateLimit(req, res, next);
   }
 }
-
+//below is not being used;
 @Injectable()
 export class BlogFormValidationMiddleware implements NestMiddleware {
   constructor(private readonly watchlistIp: IpAddressLookupProvider) {}

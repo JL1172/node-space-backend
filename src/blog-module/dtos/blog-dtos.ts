@@ -1,7 +1,7 @@
 import {
   IsArray,
   IsNotEmpty,
-  IsNumber,
+  IsNumberString,
   IsString,
   Matches,
 } from 'class-validator';
@@ -59,7 +59,7 @@ export class BlogPayloadType {
   @Matches(/^[A-Za-z0-9 ]*$/, { message: 'Name Must Only Be Alphanumeric.' })
   blog_author_name: string;
   @IsNotEmpty({ message: 'Category Required.' })
-  @IsNumber({}, { message: 'Incorrect Format For Category.' })
+  @IsNumberString({}, { message: 'Incorrect Format For Category.' })
   category_id: number;
   @IsNotEmpty({ message: 'At Least One Sub Category Is Required.' })
   @IsArray({ message: 'Must Be An Array.' })

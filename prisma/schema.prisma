@@ -87,9 +87,9 @@ model BlogToSubCategory {
 
 model BlogMedia {
   id         Int       @id @default(autoincrement())
-  blog_img   String
   size       Int
   mimeType   MIME_TYPE
+  filename   String
   data       Bytes
   blog_id    Int
   created_at DateTime? @default(now())

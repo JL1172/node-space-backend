@@ -71,15 +71,25 @@ export class PrismaProvider {
       },
     });
   }
-
+  //! need to work on this and iron it out
+  //blog => BlogToSub => BlogMedia
   async uploadBlogTotal(
     files: { filename: string; size: number; mimeType: string; data: Buffer }[],
     blogFormData: FinalBlogPayloadType,
     subCategories: BlogPayloadType['SubCategory'],
   ) {
-    const result = await this.prisma.blog.create({ data: blogFormData });
-    return result;
+    const blogData = {
+      ...blogFormData,
+      category_id: Number(blogFormData.category_id),
+    };
+    // const { id } = await this.prisma.blog.create({ data: blogData });
+    const id = 1;
+    const fileData = files.map((n) => ({ ...n, blog_id: id }));
+    // const results = await this.prisma.blog.create({ data: fileData });
+
+    return files;
   }
+  //! need to work on this and iron it out
   async findBlacklistedAddress(payload: Ip_Blacklist['ip_address']) {
     const result = await this.prisma.ip_Blacklist.findUnique({
       where: { ip_address: payload },

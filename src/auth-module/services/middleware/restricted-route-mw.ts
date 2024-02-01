@@ -17,6 +17,7 @@ import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvi
 import { HeadersPayloadType } from 'src/auth-module/dtos/restricted-route.dto';
 import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
 import rateLimit from 'express-rate-limit';
+import { IpAddressLookupProvider } from '../providers/login-service';
 
 @Injectable()
 export class RestrictedRouteRateLimitMiddleware implements NestMiddleware {
@@ -37,7 +38,7 @@ export class RestrictedRouteRateLimitMiddleware implements NestMiddleware {
 
 @Injectable()
 export class RestrictedRouteValidation implements NestMiddleware {
-  constructor() {}
+  constructor(private readonly watchlistIp: IpAddressLookupProvider) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const result = plainToClass(HeadersPayloadType, {
       token: req.headers.authorization,
@@ -49,6 +50,7 @@ export class RestrictedRouteValidation implements NestMiddleware {
       });
       next();
     } catch (err: any | unknown) {
+      await this.watchlistIp.watchlistIpAddress(req, 20);
       const error_payload: string[] = Object.values(err[0].constraints);
       throw new HttpException(
         { authorized: false, error: error_payload },
@@ -61,7 +63,10 @@ export class RestrictedRouteValidation implements NestMiddleware {
 @Injectable()
 export class RestrictedRouteSanitation implements NestMiddleware {
   private readonly validator = validator;
-  constructor(private readonly jwtStorage: RestrictedJwtService) {
+  constructor(
+    private readonly jwtStorage: RestrictedJwtService,
+    private readonly watchlistIp: IpAddressLookupProvider,
+  ) {
     this.validator = validator;
   }
   async use(req: Request, res: Response, next: NextFunction) {
@@ -80,6 +85,7 @@ export class RestrictedRouteSanitation implements NestMiddleware {
       this.jwtStorage.secureStore(token);
       next();
     } catch (err) {
+      await this.watchlistIp.watchlistIpAddress(req, 20);
       throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -92,6 +98,7 @@ export class VerifyJwtValidationMiddleware implements NestMiddleware {
     private readonly jwtVerification: JwtProvider,
     private readonly payloadStorage: RestrictedPayloadService,
     private readonly decodedTokenStorage: DecodedTokenStorageService,
+    private readonly watchlistIp: IpAddressLookupProvider,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
@@ -106,6 +113,7 @@ export class VerifyJwtValidationMiddleware implements NestMiddleware {
       });
       next();
     } catch (err: unknown | any) {
+      await this.watchlistIp.watchlistIpAddress(req, 20);
       throw new HttpException({ authorized: false, error: err }, err.status);
     }
   }
