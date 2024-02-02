@@ -63,7 +63,7 @@ export class BlogPayloadType {
   category_id: number;
   @IsNotEmpty({ message: 'At Least One Sub Category Is Required.' })
   @IsArray({ message: 'Must Be An Array.' })
-  SubCategory: string[];
+  sub_categories: number[];
 }
 export class FinalBlogPayloadType {
   blog_title: string;

@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Ip_Blacklist, PrismaClient, User } from '@prisma/client';
+import { Ip_Blacklist, MIME_TYPE, PrismaClient, User } from '@prisma/client';
 import { LogoutBody, PayloadBody } from 'src/auth-module/dtos/logout-dto';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
-import {
-  BlogPayloadType,
-  FinalBlogPayloadType,
-} from 'src/blog-module/dtos/blog-dtos';
+import { FinalBlogPayloadType } from 'src/blog-module/dtos/blog-dtos';
 
 @Injectable()
 export class PrismaProvider {
@@ -71,23 +68,33 @@ export class PrismaProvider {
       },
     });
   }
+  async findSubCategory(id: number, category_id: number) {
+    const result = await this.prisma.subCategory.findUnique({
+      where: { id: id, category_id: category_id },
+    });
+    return result ? true : false;
+  }
   //! need to work on this and iron it out
   //blog => BlogToSub => BlogMedia
   async uploadBlogTotal(
-    files: { filename: string; size: number; mimeType: string; data: Buffer }[],
+    files: {
+      filename: string;
+      size: number;
+      mimeType: MIME_TYPE;
+      data: Buffer;
+    }[],
     blogFormData: FinalBlogPayloadType,
-    subCategories: BlogPayloadType['SubCategory'],
+    subCategories: { subcategory_id: number }[],
   ) {
-    const blogData = {
-      ...blogFormData,
-      category_id: Number(blogFormData.category_id),
-    };
-    // const { id } = await this.prisma.blog.create({ data: blogData });
-    const id = 1;
-    const fileData = files.map((n) => ({ ...n, blog_id: id }));
-    // const results = await this.prisma.blog.create({ data: fileData });
-
-    return files;
+    const blogResult = await this.prisma.blog.create({ data: blogFormData });
+    const fileData = files.map((n) => ({ ...n, blog_id: blogResult.id }));
+    const subCatData = subCategories.map((n) => {
+      return { ...n, blog_id: blogResult.id };
+    });
+    await this.prisma.blogMedia.createMany({ data: fileData });
+    await this.prisma.blogToSubCategory.createMany({
+      data: subCatData,
+    });
   }
   //! need to work on this and iron it out
   async findBlacklistedAddress(payload: Ip_Blacklist['ip_address']) {
@@ -117,7 +124,7 @@ export class PrismaProvider {
       });
       //establishing ranges with lower: hour ago, upper: now in milliseconds
       const upper_range: number = Date.now();
-      const lower_range: number = upper_range - 1000 * 60 * 60;
+      const lower_range: number = upper_range - 1000 * 60 * 45;
       //this returns a boolean true is the argument date in ranges
       function checkRange(date: number) {
         return date >= lower_range && date <= upper_range;

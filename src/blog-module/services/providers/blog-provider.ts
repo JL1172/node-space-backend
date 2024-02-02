@@ -6,10 +6,6 @@ import sanitize = require('sanitize-filename');
 export class SanitizeFileNameProvider {
   private filesList: Array<Express.Multer.File> = [];
   private readonly sanitize = sanitize;
-  constructor() {
-    this.filesList = [];
-    this.sanitize = sanitize;
-  }
   sanitizeNames(files: Array<Express.Multer.File>) {
     this.filesList = files.map((file) => {
       const sanitizedFileName = this.sanitize(file.originalname);

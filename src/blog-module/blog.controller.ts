@@ -5,10 +5,12 @@ https://docs.nestjs.com/controllers#controllers
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   HttpException,
   HttpStatus,
-  ParseFilePipeBuilder,
+  MaxFileSizeValidator,
+  ParseFilePipe,
   Post,
   Res,
   UploadedFiles,
@@ -28,7 +30,9 @@ import { RestrictedPayloadService } from 'src/auth-module/services/providers/res
 import {
   SanitationInterceptor,
   ValidationInterceptor,
+  VerifySubCategoriesInterceptor,
 } from './services/interceptors/blog-interceptor';
+import { MIME_TYPE } from '@prisma/client';
 
 @Controller('api')
 export class BlogController {
@@ -52,21 +56,17 @@ export class BlogController {
     FilesInterceptor('files'),
     ValidationInterceptor,
     SanitationInterceptor,
+    VerifySubCategoriesInterceptor,
   )
-  //! need to finished
   async uploadBlog(
     @Body() body: BlogPayloadType,
     @UploadedFiles(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: '.(jpeg|jpg|png)',
-        })
-        .addMaxSizeValidator({
-          maxSize: 1000000,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' }),
+          new MaxFileSizeValidator({ maxSize: 500000 }),
+        ],
+      }),
     )
     files: Array<Express.Multer.File>,
   ) {
@@ -77,7 +77,12 @@ export class BlogController {
         return {
           filename: file.originalname,
           size: file.size,
-          mimeType: file.mimetype,
+          mimeType:
+            file.mimetype === 'png'
+              ? MIME_TYPE.png
+              : file.mimetype === 'jpg'
+                ? MIME_TYPE.jpg
+                : MIME_TYPE.jpeg,
           data: file.buffer,
         };
       });
@@ -89,14 +94,17 @@ export class BlogController {
         blog_summary: body.blog_summary,
         user_id: this.payloadStorage.readPayload().id,
         blog_author_name: body.blog_author_name,
-        category_id: body.category_id,
+        category_id: Number(body.category_id),
       };
-      const result = await this.prisma.uploadBlogTotal(
+      const subCategoryPayload = body.sub_categories.map((n) => ({
+        subcategory_id: n,
+      }));
+      await this.prisma.uploadBlogTotal(
         finalPayload,
         bodyPayload,
-        body['SubCategory'],
+        subCategoryPayload,
       );
-      return files;
+      return 'Successfully Created Blog.';
     } catch (err) {
       const req = this.reqStorage.readReq();
       await this.watchlistIp.watchlistIpAddress(req, 20);

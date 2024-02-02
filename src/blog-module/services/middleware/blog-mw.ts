@@ -4,14 +4,14 @@ import {
   Injectable,
   NestMiddleware,
 } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
+// import { plainToClass } from 'class-transformer';
+// import { validateOrReject } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { IpAddressLookupProvider } from 'src/auth-module/services/providers/login-service';
-import { BlogPayloadType } from 'src/blog-module/dtos/blog-dtos';
-import * as validator from 'validator';
-import { ReqStorageProvider } from '../providers/blog-provider';
+// import { BlogPayloadType } from 'src/blog-module/dtos/blog-dtos';
+// import * as validator from 'validator';
+// import { ReqStorageProvider } from '../providers/blog-provider';
 
 @Injectable()
 export class RateLimitMiddlewareBlog implements NestMiddleware {
@@ -32,6 +32,7 @@ export class RateLimitMiddlewareBlog implements NestMiddleware {
   }
 }
 //below is not being used;
+/*
 @Injectable()
 export class BlogFormValidationMiddleware implements NestMiddleware {
   constructor(private readonly watchlistIp: IpAddressLookupProvider) {}
@@ -89,3 +90,4 @@ export class BlogFormSanitationMiddleware implements NestMiddleware {
     next();
   }
 }
+*/
