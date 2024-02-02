@@ -4,14 +4,13 @@ import {
   Injectable,
   NestMiddleware,
 } from '@nestjs/common';
-// import { plainToClass } from 'class-transformer';
-// import { validateOrReject } from 'class-validator';
+import { plainToClass } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { IpAddressLookupProvider } from 'src/auth-module/services/providers/login-service';
-// import { BlogPayloadType } from 'src/blog-module/dtos/blog-dtos';
-// import * as validator from 'validator';
-// import { ReqStorageProvider } from '../providers/blog-provider';
+import { QueryType } from 'src/blog-module/dtos/blog-dtos';
+import { PrismaProvider } from 'src/global-utils/global-services/providers/PrismaProvider';
 
 @Injectable()
 export class RateLimitMiddlewareBlog implements NestMiddleware {
@@ -31,13 +30,12 @@ export class RateLimitMiddlewareBlog implements NestMiddleware {
     this.rateLimit(req, res, next);
   }
 }
-//below is not being used;
-/*
+
 @Injectable()
-export class BlogFormValidationMiddleware implements NestMiddleware {
+export class ValidateIdQueryMiddleware implements NestMiddleware {
   constructor(private readonly watchlistIp: IpAddressLookupProvider) {}
   async use(req: Request, res: Response, next: NextFunction) {
-    const result: BlogPayloadType = plainToClass(BlogPayloadType, req.body);
+    const result = plainToClass(QueryType, { id: req.query.id });
     try {
       await validateOrReject(result, {
         whitelist: true,
@@ -45,49 +43,31 @@ export class BlogFormValidationMiddleware implements NestMiddleware {
       });
       next();
     } catch (err) {
-      await this.watchlistIp.watchlistIpAddress(req, 15);
-      const errReturnObject = err.map((n) => ({
-        [n.property]: n.constraints,
-      }));
-      throw new HttpException(errReturnObject, HttpStatus.UNPROCESSABLE_ENTITY);
+      await this.watchlistIp.watchlistIpAddress(req, 20);
+      const errors = err.map((n) => ({ [n.property]: n.constraints }));
+      throw new HttpException(errors, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 }
 
 @Injectable()
-export class BlogFormSanitationMiddleware implements NestMiddleware {
-  private readonly validator = validator;
-  constructor(private readonly reqStorage: ReqStorageProvider) {
-    this.validator = validator;
-  }
-  use(req: Request, res: Response, next: NextFunction) {
-    const body: BlogPayloadType = req.body;
-    const keys = [
-      'blog_title',
-      'blog_intro',
-      'blog_body',
-      'blog_outro',
-      'blog_summary',
-      // 'user_id',
-      'blog_author_name',
-      // 'category_id',
-    ];
-    keys.forEach((n: string) => {
-      body[n] = this.validator.default.escape(body[n]);
-      body[n] = this.validator.default.trim(body[n]);
-      body[n] = this.validator.default.blacklist(
-        body[n],
-        /[\x00-\x1F\s;'"<>]/.source,
+export class ValidateBlogWithIdExists implements NestMiddleware {
+  constructor(private readonly prisma: PrismaProvider) {}
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.prisma.findBlogByIdMinimal(
+        Number(req.query.id),
       );
-    });
-    body.SubCategory = body.SubCategory.map((n) => {
-      n = this.validator.default.escape(n);
-      n = this.validator.default.trim(n);
-      n = this.validator.default.blacklist(n, /[\x00-\x1F\s;'"<>]/.source);
-      return n;
-    });
-    this.reqStorage.storeReq(req);
-    next();
+      if (result) {
+        next();
+      } else {
+        throw new HttpException(
+          `Could Not Find Blog With Id:${req.query.id}.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
   }
 }
-*/

@@ -11,7 +11,9 @@ import {
   HttpStatus,
   MaxFileSizeValidator,
   ParseFilePipe,
+  ParseIntPipe,
   Post,
+  Query,
   Res,
   UploadedFiles,
   UseInterceptors,
@@ -111,5 +113,18 @@ export class BlogController {
       throw new HttpException(err.message, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
-  //! need to finished
+  // @Get('/render-blog/media')
+  // async fetchBlogMedia(
+  //   @Query('id', ParseIntPipe) id: number,
+  //   @Res({ passthrough: true }) res: Response,
+  // ) {
+  //   const result = await this.prisma.findBlogById(id, 'media');
+  //   res.type('jpg');
+  //   res.status(200).json(result['BlogMedia']);
+  // }
+  // @Get('/render-blog/content')
+  // async fetchBlogContent(@Query('id', ParseIntPipe) id: number) {
+  //   const result = await this.prisma.findBlogById(id, 'content');
+  //   return result;
+  // }
 }

@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Ip_Blacklist, MIME_TYPE, PrismaClient, User } from '@prisma/client';
+import {
+  BlogMedia,
+  Ip_Blacklist,
+  MIME_TYPE,
+  PrismaClient,
+  User,
+} from '@prisma/client';
 import { LogoutBody, PayloadBody } from 'src/auth-module/dtos/logout-dto';
 import { RegisterBody } from 'src/auth-module/dtos/register-dto';
 import { FinalBlogPayloadType } from 'src/blog-module/dtos/blog-dtos';
@@ -20,6 +26,46 @@ export class PrismaProvider {
       },
     });
     return await this.prisma.token_Blacklist.count();
+  }
+  async findBlogByIdMinimal(id: number) {
+    return await this.prisma.blog.findUnique({ where: { id: id } });
+  }
+  async findBlogById(id: number, filter): Promise<BlogMedia[] | any> {
+    if (filter === 'content') {
+      return await this.prisma.blog.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+          blog_author_name: true,
+          blog_title: true,
+          blog_intro: true,
+          blog_body: true,
+          blog_outro: true,
+          blog_summary: true,
+          created_at: true,
+          BlogToSubCategory: {
+            select: {
+              subcategory: true,
+            },
+          },
+          User: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      });
+    } else if (filter === 'media') {
+      return await this.prisma.blog.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+          BlogMedia: true,
+        },
+      });
+    }
   }
   async findUser(username: string, email: string): Promise<any> {
     const username_found: User | null = await this.prisma.user.findUnique({

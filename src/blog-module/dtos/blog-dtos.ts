@@ -88,3 +88,8 @@ category_id: number;
 created_at: Date;
 updated_at: Date;
 */
+export class QueryType {
+  @IsNotEmpty({ message: 'Parameter Required.' })
+  @IsNumberString({}, { message: 'Must Be A Number' })
+  id: number;
+}

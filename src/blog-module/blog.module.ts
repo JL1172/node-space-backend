@@ -15,9 +15,9 @@ import {
 import { JwtProvider } from 'src/global-utils/global-services/providers/JwtProvider';
 import { DecodedTokenStorageService } from 'src/global-utils/global-services/providers/DecodedTokenStorage';
 import {
-  //   BlogFormSanitationMiddleware,
-  //   BlogFormValidationMiddleware,
   RateLimitMiddlewareBlog,
+  ValidateBlogWithIdExists,
+  ValidateIdQueryMiddleware,
 } from './services/middleware/blog-mw';
 import {
   ReqStorageProvider,
@@ -48,11 +48,12 @@ export class BlogModule implements NestModule {
       .apply(
         ApiKeyVerification,
         RateLimitMiddleware,
+        IpVerificationMiddleware,
         RestrictedRouteValidation,
         RestrictedRouteSanitation,
         VerifyJwtValidationMiddleware,
       )
-      .forRoutes('/api/categories');
+      .forRoutes('/api/categories', '/api/render-blog');
     consumer
       .apply(
         ApiKeyVerification,
@@ -61,9 +62,10 @@ export class BlogModule implements NestModule {
         RestrictedRouteValidation,
         RestrictedRouteSanitation,
         VerifyJwtValidationMiddleware,
-        // BlogFormValidationMiddleware,
-        // BlogFormSanitationMiddleware,
       )
       .forRoutes('/api/create-blog');
+    consumer
+      .apply(ValidateIdQueryMiddleware, ValidateBlogWithIdExists)
+      .forRoutes('/api/render-blog/media', '/api/render-blog/content');
   }
 }
