@@ -47,11 +47,9 @@ export class BlogController {
     private readonly payloadStorage: RestrictedPayloadService,
   ) {}
   @Get('/categories')
-  async fetchBlogCategories(
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
+  async fetchBlogCategories() {
     const categories = await this.prisma.findCategories();
-    res.status(200).json({ categories });
+    return categories;
   }
   @Post('/create-blog')
   @UseInterceptors(

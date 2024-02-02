@@ -376,11 +376,13 @@ async function reset_database() {
     await prisma.blogMedia.deleteMany();
     await prisma.blogToSubCategory.deleteMany();
     await prisma.subCategory.deleteMany();
+    await prisma.category.deleteMany();
     await prisma.blog.deleteMany();
     await prisma.user.deleteMany();
     await prisma.$executeRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
     await prisma.$executeRaw`ALTER SEQUENCE "Blog_id_seq" RESTART WITH 1;`;
     await prisma.$executeRaw`ALTER SEQUENCE "SubCategory_id_seq" RESTART WITH 1;`;
+    await prisma.$executeRaw`ALTER SEQUENCE "Category_id_seq" RESTART WITH 1;`;
     await prisma.$executeRaw`ALTER SEQUENCE "BlogMedia_id_seq" RESTART WITH 1;`;
     await prisma.$executeRaw`ALTER SEQUENCE "Ip_Watchlist_id_seq" RESTART WITH 1;`;
     await prisma.$executeRaw`ALTER SEQUENCE "Ip_Blacklist_id_seq" RESTART WITH 1;`;

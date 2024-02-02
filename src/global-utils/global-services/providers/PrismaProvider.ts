@@ -105,12 +105,18 @@ export class PrismaProvider {
       where: { created_at: { lt: new Date(Date.now() - 1000 * 604800) } },
     });
   }
-  async findCategories(): Promise<Record<any, any>[]> {
+  async findCategories() {
     return await this.prisma.category.findMany({
       select: {
+        id: true,
         category_type: true,
         category_description: true,
-        SubCategory: true,
+        SubCategory: {
+          select: {
+            sub_category_name: true,
+            id: true,
+          },
+        },
       },
     });
   }
