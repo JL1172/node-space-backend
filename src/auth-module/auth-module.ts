@@ -101,6 +101,7 @@ export class AuthModule implements NestModule {
     consumer
       .apply(
         RestrictedRouteRateLimitMiddleware,
+        IpVerificationMiddleware,
         RestrictedRouteValidation,
         RestrictedRouteSanitation,
         VerifyJwtValidationMiddleware,
