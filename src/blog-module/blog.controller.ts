@@ -72,7 +72,9 @@ export class BlogController {
   ) {
     try {
       const sanitizedFile = this.sanitizeFilename.sanitizeNames(files);
-      sanitizedFile.forEach((n) => this.scanImage.scanImage(n));
+      for (const img of sanitizedFile) {
+        await this.scanImage.scanImage(img);
+      }
       const finalPayload = sanitizedFile.map((file) => {
         return {
           filename: file.originalname,

@@ -32,6 +32,7 @@ export class ValidationInterceptor implements NestInterceptor {
           );
         }
       });
+      console.log(body);
       const result = plainToClass(BlogPayloadType, body);
       await validateOrReject(result, {
         whitelist: true,

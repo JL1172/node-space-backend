@@ -375,9 +375,9 @@ async function reset_database() {
     await prisma.ip_Blacklist.deleteMany();
     await prisma.blogMedia.deleteMany();
     await prisma.blogToSubCategory.deleteMany();
+    await prisma.blog.deleteMany();
     await prisma.subCategory.deleteMany();
     await prisma.category.deleteMany();
-    await prisma.blog.deleteMany();
     await prisma.user.deleteMany();
     await prisma.$executeRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
     await prisma.$executeRaw`ALTER SEQUENCE "Blog_id_seq" RESTART WITH 1;`;
