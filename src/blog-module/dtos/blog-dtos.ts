@@ -4,6 +4,7 @@ import {
   IsNumberString,
   IsString,
   Matches,
+  MinLength,
 } from 'class-validator';
 const match_explanation: string[] = [
   'Letters (uppercase and lowercase)',
@@ -26,6 +27,7 @@ const match_explanation: string[] = [
 export class BlogPayloadType {
   @IsString({ message: 'Incorrect Format For Title.' })
   @IsNotEmpty({ message: 'Blog Title Required.' })
+  @MinLength(4, { message: 'Must Be A Mininum Length Of 4' })
   @Matches(/^[A-Za-z0-9 :'\-\.,!&(){}\[\]=?|\/\\]*$/g, {
     message: `Blog Title Must Only Contain The Following: ${match_explanation}`,
   })
@@ -56,6 +58,7 @@ export class BlogPayloadType {
   blog_summary: string;
   @IsNotEmpty({ message: 'Author Name Required.' })
   @IsString({ message: 'Incorrect Format For Author.' })
+  @MinLength(3, { message: 'Must Be A Mininum Length Of 3' })
   @Matches(/^[A-Za-z0-9 ]*$/, { message: 'Name Must Only Be Alphanumeric.' })
   blog_author_name: string;
   @IsNotEmpty({ message: 'Category Required.' })

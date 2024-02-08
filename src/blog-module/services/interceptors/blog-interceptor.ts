@@ -24,14 +24,16 @@ export class ValidationInterceptor implements NestInterceptor {
       const request = httpContext.getRequest<Request>();
       const body = request.body;
       const { sub_categories } = body;
-      sub_categories.forEach((num) => {
-        if (isNaN(num)) {
-          throw new HttpException(
-            'Sub Categories Must Be Number Input',
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-        }
-      });
+      if (sub_categories) {
+        sub_categories.forEach((num) => {
+          if (isNaN(num)) {
+            throw new HttpException(
+              'Sub Categories Must Be Number Input',
+              HttpStatus.UNPROCESSABLE_ENTITY,
+            );
+          }
+        });
+      }
       console.log(body);
       const result = plainToClass(BlogPayloadType, body);
       await validateOrReject(result, {
