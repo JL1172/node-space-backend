@@ -33,6 +33,10 @@ export class RegisterRateLimiter implements NestMiddleware {
 @Injectable()
 export class RegisterValidationMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
+    throw new HttpException(
+      'This API Is Whitelisted, Contact Owner For Account.',
+      HttpStatus.BAD_REQUEST,
+    );
     const result: RegisterBody = plainToClass(RegisterBody, req.body);
     try {
       await validateOrReject(result, {
